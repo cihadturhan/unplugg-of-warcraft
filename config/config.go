@@ -15,7 +15,7 @@ func NewConfig(realm, locale, key, path string) (*warcraft.Config, error) {
 	// open config file.
 	file, err := os.Open(path)
 	if err != nil {
-		log.WithFields(log.Fields{"package": Package, "error": err, path: path}).Error(errInvalidFile)
+		log.WithFields(log.Fields{"package": Package, "error": err, "path": path}).Error(errInvalidFile)
 		return nil, err
 	}
 	defer file.Close()
@@ -24,7 +24,7 @@ func NewConfig(realm, locale, key, path string) (*warcraft.Config, error) {
 	c := warcraft.Config{}
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&c); err != nil {
-		log.WithFields(log.Fields{"package": Package, "error": err, path: path}).Error(errFailedParse)
+		log.WithFields(log.Fields{"package": Package, "error": err, "path": path}).Error(errFailedParse)
 		return nil, err
 	}
 
@@ -38,6 +38,7 @@ func NewConfig(realm, locale, key, path string) (*warcraft.Config, error) {
 	if key != "" {
 		c.Key = key
 	}
+
 	log.WithFields(log.Fields{"package": Package, "config": c}).Debug(errFailedParse)
 	return &c, nil
 }

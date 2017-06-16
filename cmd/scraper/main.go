@@ -19,8 +19,13 @@ func main() {
 		locale = flag.String("locale", "", "server locale information")
 		apikey = flag.String("apikey", "", "api authentication key")
 		path   = flag.String("config", ".env", "config file path")
+		debug  = flag.Bool("debug", false, "enable debug level logs")
 	)
 	flag.Parse()
+
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	// builds configuration.
 	c, err := config.NewConfig(*realm, *locale, *apikey, *path)
