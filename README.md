@@ -34,7 +34,7 @@ We don't know when an item on the AH was sold, cancelled or the auction simply e
 We can instead assume that when an auction dissappers, from a previous dump to the new one:
   - if the previous lenght was `Short`, then consider it as `expired` 
   - else is considered as `sold`
-  
+
 We won't try to guess cancelled auctions since that should be a rare case and we have no good way to identify them.
 
 About Auction lengths:
