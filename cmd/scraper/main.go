@@ -28,7 +28,7 @@ func main() {
 		panic(err)
 	}
 
-	log.WithFields(log.Fields{path: path}).Info("starting crawler")
+	log.WithFields(log.Fields{"path": *path}).Info("starting crawler")
 
 	lastDump := 0
 	for {
