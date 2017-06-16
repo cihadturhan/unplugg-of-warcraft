@@ -3,6 +3,13 @@ Case study: trying to predict the prices of items in World of Warcraft's Auction
 
 This is a simple scrapper for [World of Warcraft Auction House API][wow-api] that fetches and dumps the data every 30 mins.
 
+A summary of the data flow:
+
+1. grab AH dumps periodically
+2. parse and import dumps into DB, excluding expired auctions ([see below](#AH-timeLeft))
+3. gather from DB, timestamps and prices for a particular Item
+4. feed this data into unplugg api to get a prediction
+
 ## setup
 
 First, you'll need [golang](https://golang.org/doc/install) installed and configured.
