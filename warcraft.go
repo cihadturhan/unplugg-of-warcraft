@@ -7,18 +7,19 @@ type Config struct {
 	Key    string `json:"apikey"`
 }
 
-// ApiRequest stores the response with url for requesting the dump.
-type ApiRequest struct {
+// APIRequest stores the response with url for requesting the dump.
+type APIRequest struct {
 	Requests []Request `json:"files"`
 }
 
+// Request stores the url and timestamp of the requested dump.
 type Request struct {
-	Url      string `json:"url"`
+	URL      string `json:"url"`
 	Modified int    `json:"lastModified"`
 }
 
-// ApiDump stores the dump requested.
-type ApiDump struct {
+// APIDump stores the dump requested.
+type APIDump struct {
 	Realms   []Realm   `json:"realms"`
 	Auctions []Auction `json:"auctions"`
 }

@@ -11,12 +11,15 @@ import (
 // Host is the target location for the request.
 const Host string = "https://eu.api.battle.net/wow/auction/data/"
 
+// Package is the name of current package.
+const Package string = "blizzard"
+
 // NewRequest makes a request to the Blizzard API for a dump url.
 func NewRequest(config *warcraft.Config) (*warcraft.Request, error) {
 	// build request url.
 	u, err := url.Parse(Host + config.Realm)
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("failed to load host url")
+		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errInvalidURL)
 		return nil, err
 	}
 
@@ -27,20 +30,29 @@ func NewRequest(config *warcraft.Config) (*warcraft.Request, error) {
 	q.Set("apikey", config.Key)
 	u.RawQuery = q.Encode()
 
+	log.WithFields(log.Fields{"package": Package, "url": u.String()}).Debug("making http request")
+
 	// make request.
 	response, err := http.Get(u.String())
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("failed to make request")
+		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errFailedRequest)
 		return nil, err
 	}
 	defer response.Body.Close()
 
+	// check status code.
+	if response.StatusCode != 200 {
+		log.WithFields(log.Fields{"package": Package, "code": response.StatusCode, "url": u.String()}).Error(errInvalidResponse)
+	}
+
 	// decode response.
-	r := warcraft.ApiRequest{}
+	r := warcraft.APIRequest{}
 	decoder := json.NewDecoder(response.Body)
 	if err := decoder.Decode(&r); err != nil {
-		log.WithFields(log.Fields{"error": err}).Error("failed to parse request response")
+		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errInvalidResponse)
 		return nil, err
 	}
+
+	log.WithFields(log.Fields{"package": Package, "url": u.String(), "dump": r.Requests[0].URL, "timestamp": r.Requests[0].Modified}).Debug("dump url retrieved")
 	return &r.Requests[0], nil
 }
