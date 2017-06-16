@@ -6,7 +6,7 @@ This is a simple scrapper for [World of Warcraft Auction House API][wow-api] tha
 A summary of the data flow:
 
 1. grab AH dumps periodically
-2. parse and import dumps into DB, excluding expired auctions ([see below](#AH-timeLeft))
+2. parse and import dumps into DB, excluding expired auctions ([see below](#ah-timeleft))
 3. gather from DB, timestamps and prices for a particular Item
 4. feed this data into unplugg api to get a prediction
 
