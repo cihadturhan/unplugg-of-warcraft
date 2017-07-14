@@ -1,5 +1,6 @@
 {
-    "realm": "grim-batol",
-    "locale": "en_GB",
-    "apikey": ""
+  "realm": "grim-batol",
+  "locale": "en_GB",
+  "apikey": "",
+  "mongoUrl": "localhost:27017"
 }

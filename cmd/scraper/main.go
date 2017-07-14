@@ -1,25 +1,24 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"github.com/whitesmith/unplugg-of-warcraft/blizzard"
 	"github.com/whitesmith/unplugg-of-warcraft/config"
-	"io/ioutil"
-	"strconv"
+	"gopkg.in/mgo.v2"
 	"time"
 )
 
 func main() {
 	// loads user flags.
 	var (
-		realm  = flag.String("realm", "", "target realm to fetch data")
-		locale = flag.String("locale", "", "server locale information")
-		apikey = flag.String("apikey", "", "api authentication key")
-		path   = flag.String("config", ".env", "config file path")
-		debug  = flag.Bool("debug", false, "enable debug level logs")
+		realm      = flag.String("realm", "", "target realm to fetch data")
+		locale     = flag.String("locale", "", "server locale information")
+		apikey     = flag.String("apikey", "", "api authentication key")
+		mongoUrl   = flag.String("mongoUrl", "", "mongoDB url")
+		configPath = flag.String("config", ".env", "config file path")
+		debug      = flag.Bool("debug", false, "enable debug level logs")
 	)
 	flag.Parse()
 
@@ -28,12 +27,12 @@ func main() {
 	}
 
 	// builds configuration.
-	c, err := config.NewConfig(*realm, *locale, *apikey, *path)
+	c, err := config.NewConfig(*realm, *locale, *apikey, *mongoUrl, *configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	log.WithFields(log.Fields{"path": *path}).Info("starting crawler")
+	log.WithFields(log.Fields{"configPath": *configPath}).Info("starting crawler")
 
 	lastDump := 0
 	for {
@@ -64,20 +63,39 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 		return 0, err
 	}
 
-	// serialize AH dump.
-	dumpfile, err := json.Marshal(d)
+	// get database collection and insert
+	db, err := openDatabase(c.MongoUrl)
 	if err != nil {
 		return 0, err
 	}
+	collection := db.C("auctions")
 
-	// save AH dump.
-	s := strconv.Itoa(r.Modified)
-	err = ioutil.WriteFile(s, dumpfile, 0644)
-	if err != nil {
-		log.WithFields(log.Fields{"dump": r.Modified}).Error("failed to create file")
-		return 0, err
+	for _, auction := range d.Auctions {
+		err = checkAndInsert(collection, auction)
+		if err != nil {
+			log.WithFields(log.Fields{"dump": r.Modified, "error": err}).Error("failed insert auctions")
+			return 0, err
+		}
 	}
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
 	return r.Modified, nil
+}
+
+// Connects to MongoDB, establishes a session and returns the database
+func openDatabase(url string) (*mgo.Database, error) {
+	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
+	session, err := mgo.Dial(url)
+	if nil != err {
+		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
+		return nil, err
+	}
+	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
+	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
+	return session.DB(config.MongoDBDatabase), nil
+}
+
+// Checks if is a valid auction and if so, inserts into DB
+func checkAndInsert(collection *mgo.Collection, auction warcraft.Auction) error {
+	return collection.Insert(auction)
 }

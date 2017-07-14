@@ -10,8 +10,11 @@ import (
 // Package is the name of current package.
 const Package string = "config"
 
+// name of the mongo database
+const MongoDBDatabase string = "unplugg-of-warcraft"
+
 // NewConfig builds a new configuration from the dotenv and the command flags.
-func NewConfig(realm, locale, key, path string) (*warcraft.Config, error) {
+func NewConfig(realm, locale, key, mongoUrl, path string) (*warcraft.Config, error) {
 	// open config file.
 	file, err := os.Open(path)
 	if err != nil {
@@ -37,6 +40,9 @@ func NewConfig(realm, locale, key, path string) (*warcraft.Config, error) {
 	}
 	if key != "" {
 		c.Key = key
+	}
+	if mongoUrl != "" {
+		c.MongoUrl = mongoUrl
 	}
 
 	log.WithFields(log.Fields{"package": Package, "config": c}).Debug(errFailedParse)

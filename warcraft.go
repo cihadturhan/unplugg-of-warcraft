@@ -2,9 +2,10 @@ package warcraft
 
 // Config stores the crawler configuration.
 type Config struct {
-	Realm  string `json:"realm"`
-	Locale string `json:"locale"`
-	Key    string `json:"apikey"`
+	Realm    string `json:"realm"`
+	Locale   string `json:"locale"`
+	Key      string `json:"apikey"`
+	MongoUrl string `json:"mongoUrl"`
 }
 
 // APIRequest stores the response with url for requesting the dump.
