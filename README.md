@@ -19,6 +19,11 @@ You'll need an apikey, and to set it, along with the realm where you want data f
 Then, just build and run.
 AH dump files will be available on the same dir as the executable.
 
+## deployment
+
+Code and database (MongoDB) are deployed on Digital Ocean: `ssh wow@95.85.16.186`.
+The instance has firewall (`ufw`) enabled, with allowed access for SSH and HTTP(S).
+
 ## Notes
 
 ### AH data
