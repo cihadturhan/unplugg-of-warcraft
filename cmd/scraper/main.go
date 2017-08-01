@@ -28,6 +28,7 @@ func main() {
 
 	// builds configuration.
 	c, err := config.NewConfig(*realm, *locale, *apikey, *mongoUrl, *configPath)
+
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +38,8 @@ func main() {
 	lastDump := 0
 	for {
 		n, err := getDump(c, lastDump)
-		if err != nil {
+
+		if err == nil {
 			lastDump = n
 		}
 		time.Sleep(30 * time.Minute)
@@ -47,6 +49,7 @@ func main() {
 func getDump(c *warcraft.Config, last int) (int, error) {
 	// makes request to get dump url.
 	r, err := blizzard.NewRequest(c)
+
 	if err != nil {
 		return 0, err
 	}
@@ -65,6 +68,7 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 
 	// get database collection and insert
 	db, err := openDatabase(c.MongoUrl)
+
 	if err != nil {
 		return 0, err
 	}
@@ -72,6 +76,7 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 
 	for _, auction := range d.Auctions {
 		err = checkAndInsert(collection, auction)
+
 		if err != nil {
 			log.WithFields(log.Fields{"dump": r.Modified, "error": err}).Error("failed insert auctions")
 			return 0, err
@@ -86,12 +91,15 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 func openDatabase(url string) (*mgo.Database, error) {
 	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
 	session, err := mgo.Dial(url)
+
 	if nil != err {
 		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
 		return nil, err
 	}
+
 	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
 	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
+
 	return session.DB(config.MongoDBDatabase), nil
 }
 
