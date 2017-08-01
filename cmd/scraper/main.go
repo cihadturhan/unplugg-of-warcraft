@@ -39,7 +39,7 @@ func main() {
 	for {
 		n, err := getDump(c, lastDump)
 
-		if err != nil {
+		if err == nil {
 			lastDump = n
 		}
 		time.Sleep(30 * time.Minute)
