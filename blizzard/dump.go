@@ -12,6 +12,7 @@ import (
 func NewDump(path string) (*warcraft.APIDump, error) {
 	// build request url.
 	u, err := url.Parse(path)
+
 	if err != nil {
 		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errInvalidURL)
 		return nil, err
@@ -21,6 +22,7 @@ func NewDump(path string) (*warcraft.APIDump, error) {
 
 	// make request.
 	response, err := http.Get(u.String())
+
 	if err != nil {
 		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errFailedRequest)
 		return nil, err
@@ -35,6 +37,7 @@ func NewDump(path string) (*warcraft.APIDump, error) {
 	// decode response.
 	r := warcraft.APIDump{}
 	decoder := json.NewDecoder(response.Body)
+
 	if err := decoder.Decode(&r); err != nil {
 		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errInvalidResponse)
 		return nil, err

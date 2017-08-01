@@ -26,6 +26,7 @@ func buildRequestQuery(config *warcraft.Config, u *url.URL, q url.Values) {
 func NewRequest(config *warcraft.Config) (*warcraft.Request, error) {
 	// build request url.
 	u, err := url.Parse(Host + config.Realm)
+
 	if err != nil {
 		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errInvalidURL)
 		return nil, err
@@ -38,6 +39,7 @@ func NewRequest(config *warcraft.Config) (*warcraft.Request, error) {
 
 	// make request.
 	response, err := http.Get(u.String())
+
 	if err != nil {
 		log.WithFields(log.Fields{"package": Package, "error": err, "url": u.String()}).Error(errFailedRequest)
 		return nil, err
