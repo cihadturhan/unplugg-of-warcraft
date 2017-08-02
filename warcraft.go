@@ -31,9 +31,6 @@ type Realm struct {
 	Slug string `json:"slug"`
 }
 
-type Llama struct {
-}
-
 // Auction stores an auction metadata.
 type Auction struct {
 	ID       int    `json:"auc"`
