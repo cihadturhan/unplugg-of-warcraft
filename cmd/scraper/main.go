@@ -46,15 +46,26 @@ func main() {
 	}
 }
 
-// auctionsDumpToInterfaceArray takes the auctions dump array and converts it to an array of interfaces
-func auctionsDumpToInterfaceArray(structs []warcraft.Auction) []interface{} {
-	interfaces := make([]interface{}, len(structs))
-
-	for i, st := range structs {
-		interfaces[i] = st
+// auctionIsValid cheks if an auction is valid
+func auctionIsValid(auction warcraft.Auction) bool {
+	if auction.Timeleft != "SHORT" {
+		return true
 	}
 
-	return interfaces
+	return false
+}
+
+// buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
+func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
+	validAuctions := make([]interface{}, len(allAuctions))
+
+	for i, auction := range allAuctions {
+		if auctionIsValid(auction) {
+			validAuctions[i] = auction
+		}
+	}
+
+	return validAuctions
 }
 
 func getDump(c *warcraft.Config, last int) (int, error) {
@@ -77,16 +88,17 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 		return 0, err
 	}
 
-	// get database collection and insert
+	// open Mongo database
 	db, err := openDatabase(c.MongoUrl)
 
 	if err != nil {
 		return 0, err
 	}
 
+	// get collection and insert valid auctions into the database
 	collection := db.C("auctions")
-	auctions := auctionsDumpToInterfaceArray(d.Auctions)
-	collection.Insert(auctions...)
+	validAuctions := buildValidAuctionsSlice(d.Auctions)
+	collection.Insert(validAuctions...)
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
 	return r.Modified, nil
