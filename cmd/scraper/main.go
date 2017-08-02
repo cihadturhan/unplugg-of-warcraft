@@ -42,8 +42,19 @@ func main() {
 		if err == nil {
 			lastDump = n
 		}
-		time.Sleep(30 * time.Minute)
+		time.Sleep(1 * time.Minute)
 	}
+}
+
+// auctionsDumpToInterfaceArray takes the auctions dump array and converts it to an array of interfaces
+func auctionsDumpToInterfaceArray(structs []warcraft.Auction) []interface{} {
+	interfaces := make([]interface{}, len(structs))
+
+	for i, st := range structs {
+		interfaces[i] = st
+	}
+
+	return interfaces
 }
 
 func getDump(c *warcraft.Config, last int) (int, error) {
@@ -72,16 +83,10 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	collection := db.C("auctions")
-
-	for _, auction := range d.Auctions {
-		err = checkAndInsert(collection, auction)
-
-		if err != nil {
-			log.WithFields(log.Fields{"dump": r.Modified, "error": err}).Error("failed insert auctions")
-			return 0, err
-		}
-	}
+	auctions := auctionsDumpToInterfaceArray(d.Auctions)
+	collection.Insert(auctions...)
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
 	return r.Modified, nil
@@ -101,9 +106,4 @@ func openDatabase(url string) (*mgo.Database, error) {
 	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
 
 	return session.DB(config.MongoDBDatabase), nil
-}
-
-// Checks if is a valid auction and if so, inserts into DB
-func checkAndInsert(collection *mgo.Collection, auction warcraft.Auction) error {
-	return collection.Insert(auction)
 }
