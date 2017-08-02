@@ -42,7 +42,7 @@ func main() {
 		if err == nil {
 			lastDump = n
 		}
-		time.Sleep(1 * time.Minute)
+		time.Sleep(30 * time.Minute)
 	}
 }
 
