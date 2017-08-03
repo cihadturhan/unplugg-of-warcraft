@@ -48,11 +48,11 @@ func main() {
 
 // auctionIsValid cheks if an auction is valid
 func auctionIsValid(auction warcraft.Auction) bool {
-	if auction.Timeleft != "SHORT" {
-		return true
+	if auction.Timeleft == "SHORT" {
+		return false
 	}
 
-	return false
+	return true
 }
 
 // buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
