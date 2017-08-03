@@ -1,24 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"github.com/whitesmith/unplugg-of-warcraft/blizzard"
 	"github.com/whitesmith/unplugg-of-warcraft/config"
 	"gopkg.in/mgo.v2"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
 func main() {
 	// loads user flags.
 	var (
-		realm      = flag.String("realm", "", "target realm to fetch data")
-		locale     = flag.String("locale", "", "server locale information")
-		apikey     = flag.String("apikey", "", "api authentication key")
-		mongoUrl   = flag.String("mongoUrl", "", "mongoDB url")
-		configPath = flag.String("config", ".env", "config file path")
-		debug      = flag.Bool("debug", false, "enable debug level logs")
+		realm         = flag.String("realm", "", "target realm to fetch data")
+		locale        = flag.String("locale", "", "server locale information")
+		apikey        = flag.String("apikey", "", "api authentication key")
+		mongoUrl      = flag.String("mongoUrl", "", "mongoDB url")
+		configPath    = flag.String("config", ".env", "config file path")
+		debug         = flag.Bool("debug", false, "enable debug level logs")
+		loadDumpFiles = flag.Bool("loadDumpFiles", false, "load api dump files")
 	)
 	flag.Parse()
 
@@ -33,6 +37,10 @@ func main() {
 		panic(err)
 	}
 
+	if *loadDumpFiles {
+		loadDumpFilesIntoDatabase(c, "./")
+	}
+
 	log.WithFields(log.Fields{"configPath": *configPath}).Info("starting crawler")
 
 	lastDump := 0
@@ -44,6 +52,80 @@ func main() {
 		}
 		time.Sleep(30 * time.Minute)
 	}
+}
+
+// isDumpFile checks if the file is a dump or not
+func isDumpFile(filename string) bool {
+	if filename[0:1] != "1" {
+		return false
+	}
+	return true
+}
+
+// buildDumpFilesSlice returns a slice with all the api dump files
+func buildDumpFilesSlice(files []os.FileInfo) []string {
+	dumpFiles := make([]string, 0)
+
+	for _, file := range files {
+		filename := file.Name()
+
+		if isDumpFile(filename) {
+			dumpFiles = append(dumpFiles, filename)
+		}
+	}
+
+	return dumpFiles
+}
+
+// readFile takes a filename reads the file and decodes the file to json
+func readFile(filename string) ([]warcraft.Auction, error) {
+	dump := warcraft.APIDump{}
+
+	// get file binary data
+	rawFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	// unmarshal data
+	err = json.Unmarshal(rawFile, &dump)
+	if err != nil {
+		return nil, err
+	}
+
+	return dump.Auctions, nil
+}
+
+// loadDumpFiles loads the Blizzard API dump files into the DB
+func loadDumpFilesIntoDatabase(c *warcraft.Config, path string) error {
+	// get all the files in the directory
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	// open Mongo database
+	db, err := openDatabase(c.MongoUrl)
+
+	if err != nil {
+		return err
+	}
+
+	dumpFiles := buildDumpFilesSlice(files)
+	for _, filename := range dumpFiles {
+		auctions, _ := readFile(filename)
+		collection := db.C("auctions")
+		validAuctions := buildValidAuctionsSlice(auctions)
+
+		err = collection.Insert(validAuctions...)
+		if err != nil {
+			return err
+		}
+
+		log.WithFields(log.Fields{"dump": filename}).Info("new dump created")
+	}
+
+	return nil
 }
 
 // auctionIsValid cheks if an auction is valid
