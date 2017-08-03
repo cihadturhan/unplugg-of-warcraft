@@ -46,6 +46,28 @@ func main() {
 	}
 }
 
+// auctionIsValid cheks if an auction is valid
+func auctionIsValid(auction warcraft.Auction) bool {
+	if auction.Timeleft == "SHORT" {
+		return false
+	}
+
+	return true
+}
+
+// buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
+func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
+	validAuctions := make([]interface{}, 0)
+
+	for _, auction := range allAuctions {
+		if auctionIsValid(auction) {
+			validAuctions = append(validAuctions, auction)
+		}
+	}
+
+	return validAuctions
+}
+
 func getDump(c *warcraft.Config, last int) (int, error) {
 	// makes request to get dump url.
 	r, err := blizzard.NewRequest(c)
@@ -66,21 +88,20 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 		return 0, err
 	}
 
-	// get database collection and insert
+	// open Mongo database
 	db, err := openDatabase(c.MongoUrl)
 
 	if err != nil {
 		return 0, err
 	}
+
+	// get collection and insert valid auctions into the database
 	collection := db.C("auctions")
+	validAuctions := buildValidAuctionsSlice(d.Auctions)
 
-	for _, auction := range d.Auctions {
-		err = checkAndInsert(collection, auction)
-
-		if err != nil {
-			log.WithFields(log.Fields{"dump": r.Modified, "error": err}).Error("failed insert auctions")
-			return 0, err
-		}
+	err = collection.Insert(validAuctions...)
+	if err != nil {
+		return 0, err
 	}
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
@@ -101,9 +122,4 @@ func openDatabase(url string) (*mgo.Database, error) {
 	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
 
 	return session.DB(config.MongoDBDatabase), nil
-}
-
-// Checks if is a valid auction and if so, inserts into DB
-func checkAndInsert(collection *mgo.Collection, auction warcraft.Auction) error {
-	return collection.Insert(auction)
 }
