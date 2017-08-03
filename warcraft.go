@@ -35,13 +35,8 @@ type Realm struct {
 type Auction struct {
 	ID       int    `json:"auc"`
 	Item     int    `json:"item"`
-	Player   string `json:"owner"`
 	Realm    string `json:"ownerRealm"`
-	Bid      int    `json:"bid"`
 	Buyout   int    `json:"buyout"`
 	Quantity int    `json:"quantity"`
 	Timeleft string `json:"timeLeft"`
-	Rand     int    `json:"rand"`
-	Seed     int    `json:"seed"`
-	Context  int    `json:"context"`
 }
