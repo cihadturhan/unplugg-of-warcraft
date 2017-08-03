@@ -59,9 +59,9 @@ func auctionIsValid(auction warcraft.Auction) bool {
 func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
 	validAuctions := make([]interface{}, len(allAuctions))
 
-	for i, auction := range allAuctions {
+	for _, auction := range allAuctions {
 		if auctionIsValid(auction) {
-			validAuctions[i] = auction
+			validAuctions = append(validAuctions, auction)
 		}
 	}
 
