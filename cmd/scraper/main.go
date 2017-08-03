@@ -68,6 +68,22 @@ func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
 	return validAuctions
 }
 
+// Connects to MongoDB, establishes a session and returns the database
+func openDatabase(url string) (*mgo.Database, error) {
+	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
+	session, err := mgo.Dial(url)
+
+	if nil != err {
+		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
+		return nil, err
+	}
+
+	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
+	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
+
+	return session.DB(config.MongoDBDatabase), nil
+}
+
 func getDump(c *warcraft.Config, last int) (int, error) {
 	// makes request to get dump url.
 	r, err := blizzard.NewRequest(c)
@@ -106,20 +122,4 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
 	return r.Modified, nil
-}
-
-// Connects to MongoDB, establishes a session and returns the database
-func openDatabase(url string) (*mgo.Database, error) {
-	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
-	session, err := mgo.Dial(url)
-
-	if nil != err {
-		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
-		return nil, err
-	}
-
-	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
-	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
-
-	return session.DB(config.MongoDBDatabase), nil
 }
