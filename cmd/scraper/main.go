@@ -57,7 +57,7 @@ func auctionIsValid(auction warcraft.Auction) bool {
 
 // buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
 func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
-	validAuctions := make([]interface{}, len(allAuctions))
+	validAuctions := make([]interface{}, 0)
 
 	for _, auction := range allAuctions {
 		if auctionIsValid(auction) {
@@ -98,7 +98,11 @@ func getDump(c *warcraft.Config, last int) (int, error) {
 	// get collection and insert valid auctions into the database
 	collection := db.C("auctions")
 	validAuctions := buildValidAuctionsSlice(d.Auctions)
-	collection.Insert(validAuctions...)
+
+	err = collection.Insert(validAuctions...)
+	if err != nil {
+		return 0, err
+	}
 
 	log.WithFields(log.Fields{"dump": r.Modified}).Info("new dump created")
 	return r.Modified, nil
