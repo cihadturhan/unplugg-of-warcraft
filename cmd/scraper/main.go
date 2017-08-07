@@ -205,8 +205,9 @@ func loadFilesIntoDatabase(c *warcraft.Config, path string) error {
 	// load dump files
 	dumpFiles := buildFilenamesSlice(files)
 	for _, filename := range dumpFiles {
-		loadFileIntoDatabase(filename, db)
-		removeFile(filename)
+		if err := loadFileIntoDatabase(filename, db); err == nil {
+			removeFile(filename)
+		}
 	}
 
 	log.Info("Dump files loaded into database")
