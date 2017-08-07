@@ -96,29 +96,39 @@ func readFile(filename string) ([]warcraft.Auction, error) {
 	return dump.Auctions, nil
 }
 
+func loadFileIntoDatabase(filename string, db *mgo.Database) error {
+	collection := db.C("auctions")
+
+	auctions, _ := readFile(filename)
+	validAuctions := buildValidAuctionsSlice(auctions)
+
+	if err := collection.Insert(validAuctions...); err != nil {
+		log.WithFields(log.Fields{"error": err, "filename": filename}).Error("Failed to load file to database")
+		return err
+	}
+
+	return nil
+}
+
 // loadFilesIntoDatabase loads the Blizzard API dump files into the DB
 func loadFilesIntoDatabase(c *warcraft.Config, path string) error {
 	// get all the files in the directory
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
+		log.WithFields(log.Fields{"error": err, "path": path}).Error("Failed to load files in directory")
 		return err
 	}
 
 	// open Mongo database
 	db, err := openDatabase(c.MongoUrl)
-
 	if err != nil {
 		return err
 	}
 
+	// load dump files
 	dumpFiles := buildFilenamesSlice(files)
 	for _, filename := range dumpFiles {
-		auctions, _ := readFile(filename)
-		collection := db.C("auctions")
-		validAuctions := buildValidAuctionsSlice(auctions)
-
-		err = collection.Insert(validAuctions...)
-		if err != nil {
+		if err := loadFileIntoDatabase(filename, db); err != nil {
 			return err
 		}
 
