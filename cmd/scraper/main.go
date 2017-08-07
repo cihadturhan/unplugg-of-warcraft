@@ -98,6 +98,19 @@ func readFile(filename string) ([]warcraft.Auction, error) {
 	return dump.Auctions, nil
 }
 
+// removeFile removes a dump file
+func removeFile(filename string) error {
+	path := "./" + filename
+
+	if err := os.Remove(path); err != nil {
+		log.WithFields(log.Fields{"error": err, "path": path}).Error("Failed to remove file")
+		return err
+	}
+
+	log.WithFields(log.Fields{"filename": filename}).Info("File removed")
+	return nil
+}
+
 // auctionIsValid cheks if an auction is valid
 func auctionIsValid(auction warcraft.Auction) bool {
 	if auction.Timeleft == "SHORT" {
@@ -147,6 +160,7 @@ func loadFileIntoDatabase(filename string, db *mgo.Database) error {
 		return err
 	}
 
+	log.WithFields(log.Fields{"dump": filename}).Info("Dump loaded to database")
 	return nil
 }
 
@@ -168,13 +182,11 @@ func loadFilesIntoDatabase(c *warcraft.Config, path string) error {
 	// load dump files
 	dumpFiles := buildFilenamesSlice(files)
 	for _, filename := range dumpFiles {
-		if err := loadFileIntoDatabase(filename, db); err != nil {
-			return err
-		}
-
-		log.WithFields(log.Fields{"dump": filename}).Info("new dump created")
+		loadFileIntoDatabase(filename, db)
+		removeFile(filename)
 	}
 
+	log.Info("Dump files loaded into database")
 	return nil
 }
 
