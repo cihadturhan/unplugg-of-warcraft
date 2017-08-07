@@ -38,7 +38,7 @@ func main() {
 	}
 
 	if *loadDumpFiles {
-		loadDumpFilesIntoDatabase(c, "./")
+		loadFilesIntoDatabase(c, "./")
 	}
 
 	log.WithFields(log.Fields{"configPath": *configPath}).Info("starting crawler")
@@ -62,8 +62,8 @@ func isDumpFile(filename string) bool {
 	return true
 }
 
-// buildDumpFilesSlice returns a slice with all the api dump files
-func buildDumpFilesSlice(files []os.FileInfo) []string {
+// buildFilenamesSlice returns a slice with all the api dump files
+func buildFilenamesSlice(files []os.FileInfo) []string {
 	dumpFiles := make([]string, 0)
 
 	for _, file := range files {
@@ -77,7 +77,7 @@ func buildDumpFilesSlice(files []os.FileInfo) []string {
 	return dumpFiles
 }
 
-// readFile takes a filename reads the file and decodes the file to json
+// readFile takes a filename reads the file and decodes it to json
 func readFile(filename string) ([]warcraft.Auction, error) {
 	dump := warcraft.APIDump{}
 
@@ -96,8 +96,8 @@ func readFile(filename string) ([]warcraft.Auction, error) {
 	return dump.Auctions, nil
 }
 
-// loadDumpFiles loads the Blizzard API dump files into the DB
-func loadDumpFilesIntoDatabase(c *warcraft.Config, path string) error {
+// loadFilesIntoDatabase loads the Blizzard API dump files into the DB
+func loadFilesIntoDatabase(c *warcraft.Config, path string) error {
 	// get all the files in the directory
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -111,7 +111,7 @@ func loadDumpFilesIntoDatabase(c *warcraft.Config, path string) error {
 		return err
 	}
 
-	dumpFiles := buildDumpFilesSlice(files)
+	dumpFiles := buildFilenamesSlice(files)
 	for _, filename := range dumpFiles {
 		auctions, _ := readFile(filename)
 		collection := db.C("auctions")
