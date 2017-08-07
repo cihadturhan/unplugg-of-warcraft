@@ -98,6 +98,44 @@ func readFile(filename string) ([]warcraft.Auction, error) {
 	return dump.Auctions, nil
 }
 
+// auctionIsValid cheks if an auction is valid
+func auctionIsValid(auction warcraft.Auction) bool {
+	if auction.Timeleft == "SHORT" {
+		return false
+	}
+
+	return true
+}
+
+// buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
+func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
+	validAuctions := make([]interface{}, 0)
+
+	for _, auction := range allAuctions {
+		if auctionIsValid(auction) {
+			validAuctions = append(validAuctions, auction)
+		}
+	}
+
+	return validAuctions
+}
+
+// Connects to MongoDB, establishes a session and returns the database
+func openDatabase(url string) (*mgo.Database, error) {
+	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
+	session, err := mgo.Dial(url)
+
+	if nil != err {
+		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
+		return nil, err
+	}
+
+	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
+	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
+
+	return session.DB(config.MongoDBDatabase), nil
+}
+
 func loadFileIntoDatabase(filename string, db *mgo.Database) error {
 	collection := db.C("auctions")
 
@@ -140,44 +178,7 @@ func loadFilesIntoDatabase(c *warcraft.Config, path string) error {
 	return nil
 }
 
-// auctionIsValid cheks if an auction is valid
-func auctionIsValid(auction warcraft.Auction) bool {
-	if auction.Timeleft == "SHORT" {
-		return false
-	}
-
-	return true
-}
-
-// buildValidAuctionsSlice takes the auctions array and returns an slice with the valid auctions to be inserted into the DB
-func buildValidAuctionsSlice(allAuctions []warcraft.Auction) []interface{} {
-	validAuctions := make([]interface{}, 0)
-
-	for _, auction := range allAuctions {
-		if auctionIsValid(auction) {
-			validAuctions = append(validAuctions, auction)
-		}
-	}
-
-	return validAuctions
-}
-
-// Connects to MongoDB, establishes a session and returns the database
-func openDatabase(url string) (*mgo.Database, error) {
-	log.WithFields(log.Fields{"mongoUrl": url}).Info("Opening mongodb session")
-	session, err := mgo.Dial(url)
-
-	if nil != err {
-		log.WithFields(log.Fields{"error": err, "url": url}).Error("failed to connect to MongoDB")
-		return nil, err
-	}
-
-	session.EnsureSafe(&mgo.Safe{FSync: true, J: true})
-	log.WithFields(log.Fields{"database": config.MongoDBDatabase}).Info("Opening database")
-
-	return session.DB(config.MongoDBDatabase), nil
-}
-
+// getDump makes a request to the Blizzard API and loads it into de database
 func getDump(c *warcraft.Config, last int) (int, error) {
 	// makes request to get dump url.
 	r, err := blizzard.NewRequest(c)
