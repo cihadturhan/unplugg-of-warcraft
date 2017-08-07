@@ -33,10 +33,11 @@ type Realm struct {
 
 // Auction stores an auction metadata.
 type Auction struct {
-	ID       int    `json:"auc"`
-	Item     int    `json:"item"`
-	Realm    string `json:"ownerRealm"`
-	Buyout   int    `json:"buyout"`
-	Quantity int    `json:"quantity"`
-	Timeleft string `json:"timeLeft"`
+	ID        int    `json:"auc"`
+	Item      int    `json:"item"`
+	Realm     string `json:"ownerRealm"`
+	Buyout    int    `json:"buyout"`
+	Quantity  int    `json:"quantity"`
+	Timeleft  string `json:"timeLeft"`
+	Timestamp int
 }
