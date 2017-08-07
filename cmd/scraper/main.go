@@ -84,12 +84,14 @@ func readFile(filename string) ([]warcraft.Auction, error) {
 	// get file binary data
 	rawFile, err := ioutil.ReadFile(filename)
 	if err != nil {
+		log.WithFields(log.Fields{"error": err, "filename": filename}).Error("Failed to read raw file data")
 		return nil, err
 	}
 
 	// unmarshal data
 	err = json.Unmarshal(rawFile, &dump)
 	if err != nil {
+		log.WithFields(log.Fields{"error": err, "filename": filename}).Error("Failed to unmarshal file binary data")
 		return nil, err
 	}
 
