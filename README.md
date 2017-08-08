@@ -16,8 +16,27 @@ First, you'll need [golang](https://golang.org/doc/install) installed and config
 
 You'll need an apikey, and to set it, along with the realm where you want data from, in the file `.env`.
 
-Then, just build and run.
+Then, just build and run: 
+
+```
+# build scrapper
+go build -o scrapper cmd/scraper/main.go
+
+# run scrapper
+./scrapper
+```
+
 AH dump files will be available on the same dir as the executable.
+
+## deployment
+
+Code and database (MongoDB) are deployed on Digital Ocean: `ssh wow@95.85.16.186`.
+The instance has firewall (`ufw`) enabled, with allowed access for SSH and HTTP(S).
+
+The MongoDB has 2 collections:
+
+- `auctions`: contains all relevant data from the AH dumps
+- `buyouts`: contains processed data from auctions, this is the data used to feed into unplugg
 
 ## Notes
 
