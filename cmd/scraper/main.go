@@ -175,7 +175,7 @@ func insertIntoDatabase(auctions []interface{}, collection *mgo.Collection) erro
 
 // insertIntoDabase splits the auctions slice into smaller slices to insert
 func insertBySlices(auctions []interface{}, collection *mgo.Collection) error {
-	if len(auctions) > 1000 {
+	if len(auctions) > 100 {
 		if err := insertIntoDatabase(auctions, collection); err != nil {
 			return err
 		}
@@ -184,14 +184,14 @@ func insertBySlices(auctions []interface{}, collection *mgo.Collection) error {
 	}
 
 	low := 0
-	high := 1000
+	high := 100
 	for high <= len(auctions) {
 		if err := insertIntoDatabase(auctions[low:high], collection); err != nil {
 			return err
 		}
 
-		low += 1000
-		high += 1000
+		low += 100
+		high += 100
 	}
 
 	if err := insertIntoDatabase(auctions[low:len(auctions)], collection); err != nil {
