@@ -166,6 +166,41 @@ func openDatabase(url string) (*mgo.Database, error) {
 	return session.DB(config.MongoDBDatabase), nil
 }
 
+func insertIntoDatabase(auctions []interface{}, collection *mgo.Collection) error {
+	if err := collection.Insert(auctions...); err != nil {
+		return err
+	}
+	return nil
+}
+
+// insertIntoDabase splits the auctions slice into smaller slices to insert
+func insertBySlices(auctions []interface{}, collection *mgo.Collection) error {
+	if len(auctions) > 1000 {
+		if err := insertIntoDatabase(auctions, collection); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	low := 0
+	high := 1000
+	for high <= len(auctions) {
+		if err := insertIntoDatabase(auctions[low:high], collection); err != nil {
+			return err
+		}
+
+		low += 1000
+		high += 1000
+	}
+
+	if err := insertIntoDatabase(auctions[low:len(auctions)], collection); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func loadFileIntoDatabase(filename string, db *mgo.Database) error {
 	collection := db.C("auctions")
 
@@ -178,7 +213,7 @@ func loadFileIntoDatabase(filename string, db *mgo.Database) error {
 	auctions, _ := readFile(filename)
 	validAuctions := buildValidAuctionsSlice(auctions, timestamp)
 
-	if err := collection.Insert(validAuctions...); err != nil {
+	if err := insertBySlices(validAuctions, collection); err != nil {
 		log.WithFields(log.Fields{"error": err, "filename": filename}).Error("Failed to load file to database")
 		return err
 	}
