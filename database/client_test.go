@@ -1,8 +1,7 @@
 package database_test
 
 import (
-	"github.com/go-kit/kit/log"
-	"github.com/whitesmith/enging/database"
+	"github.com/whitesmith/unplugg-of-warcraft/database"
 	"time"
 )
 
@@ -18,7 +17,7 @@ type Client struct {
 func NewClient() *Client {
 	// create client wrapper.
 	c := &Client{
-		Client: database.NewClient("localhost/test", log.NewNopLogger()),
+		Client: database.NewClient("localhost/test"),
 	}
 	c.Now = func() time.Time { return Now }
 
