@@ -1,22 +1,19 @@
 package warcraft
 
-// Config stores the crawler configuration.
-type Config struct {
-	Realm    string `json:"realm"`
-	Locale   string `json:"locale"`
-	Key      string `json:"apikey"`
-	MongoUrl string `json:"mongoUrl"`
+// BlizzardService handles interaction with the blizzard API.
+type BlizzardService interface {
+	GetAPIDump(realm, locale, key string, last int64) (*APIDump, error)
 }
 
-// APIRequest stores the response with url for requesting the dump.
-type APIRequest struct {
-	Requests []Request `json:"files"`
+// DatabaseService handles interaction with the database.
+type DatabaseService interface {
+	InsertAuctions(auctions []Auction) error
 }
 
 // Request stores the url and timestamp of the requested dump.
 type Request struct {
 	URL      string `json:"url"`
-	Modified int    `json:"lastModified"`
+	Modified int64  `json:"lastModified"`
 }
 
 // APIDump stores the dump requested.
@@ -33,11 +30,11 @@ type Realm struct {
 
 // Auction stores an auction metadata.
 type Auction struct {
-	ID        int    `json:"auc"`
-	Item      int    `json:"item"`
-	Realm     string `json:"ownerRealm"`
-	Buyout    int    `json:"buyout"`
-	Quantity  int    `json:"quantity"`
-	Timeleft  string `json:"timeLeft"`
-	Timestamp int
+	ID        int    `json:"auc" bson:"auc"`
+	Item      int    `json:"item" bson:"item"`
+	Realm     string `json:"ownerRealm" bson:"ownerRealm"`
+	Buyout    int    `json:"buyout" bson:"buyout"`
+	Quantity  int    `json:"quantity" bson:"quantity"`
+	Timeleft  string `json:"timeLeft" bson:"timeLeft"`
+	Timestamp int    `json:"timestamp,omitempty" bson:"timestamp"`
 }

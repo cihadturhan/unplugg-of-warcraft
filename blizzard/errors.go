@@ -1,4 +1,4 @@
-package blizzard
+package old
 
 import "github.com/whitesmith/unplugg-of-warcraft"
 
