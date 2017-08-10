@@ -7,7 +7,7 @@ type BlizzardService interface {
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
-	InsertAuctions(auctions []Auction) error
+	InsertAuctions(auctions []Auction, timestamp int64) error
 }
 
 // Request stores the url and timestamp of the requested dump.
@@ -18,8 +18,9 @@ type Request struct {
 
 // APIDump stores the dump requested.
 type APIDump struct {
-	Realms   []Realm   `json:"realms"`
-	Auctions []Auction `json:"auctions"`
+	Realms    []Realm   `json:"realms"`
+	Auctions  []Auction `json:"auctions"`
+	Timestamp int64     `json:"timestamp,omitempty"`
 }
 
 // Realm stores a realm metadata.
@@ -36,5 +37,5 @@ type Auction struct {
 	Buyout    int    `json:"buyout" bson:"buyout"`
 	Quantity  int    `json:"quantity" bson:"quantity"`
 	Timeleft  string `json:"timeLeft" bson:"timeLeft"`
-	Timestamp int    `json:"timestamp,omitempty" bson:"timestamp"`
+	Timestamp int64  `json:"timestamp,omitempty" bson:"timestamp"`
 }

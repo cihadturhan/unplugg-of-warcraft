@@ -22,7 +22,7 @@ func main() {
 		realm    = flag.String("realm", "grim-batol", "target realm to fetch data")
 		locale   = flag.String("locale", "en_GB", "server locale information")
 		apiKey   = flag.String("apikey", "", "api authentication key")
-		timer    = flag.Int("timer", 10, "time between api requests")
+		timer    = flag.Int("timer", 2700, "time between api requests")
 		mongoURL = flag.String("mongoUrl", "localhost/warcraft", "mongoDB url")
 	)
 	flag.Parse()

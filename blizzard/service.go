@@ -25,8 +25,8 @@ func (s *Service) GetAPIDump(realm, locale, key string, last int64) (*warcraft.A
 		return nil, warcraft.ErrGetDump
 	}
 
-	// save dump timestamp.
-	s.client.Last = r.Modified
+	// set dump timestamp.
+	d.Timestamp = r.Modified
 
 	return d, nil
 }

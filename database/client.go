@@ -66,23 +66,12 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 	defer session.Close()
 	col := session.DB("").C(AuctionCollection)
 
-	// ensure index exists.
-	index := mgo.Index{
-		Key:        []string{"auc"},
-		Unique:     true,
-		Background: true,
-	}
-	if err := col.EnsureIndex(index); err != nil {
-		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseIndex)
-		return err
-	}
-
 	// insert auctions.
 	b := col.Bulk()
 	b.Unordered()
 	b.Insert(auctions...)
 	if _, err := b.Run(); err != nil {
-		c.logger.WithFields(log.Fields{"error": err}).Debug(errDatabaseInsert)
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseInsert)
 		return nil
 	}
 	return nil

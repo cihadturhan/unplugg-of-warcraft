@@ -160,10 +160,13 @@ func (c *Client) handleRequests() {
 			c.logger.WithFields(log.Fields{"error": err}).Warn("failed to get new api dump")
 			continue
 		}
-		if err := c.DatabaseService.InsertAuctions(d.Auctions); err != nil {
+		if err := c.DatabaseService.InsertAuctions(d.Auctions, d.Timestamp); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn("failed to save new api dump")
 			continue
 		}
+
+		// save dump timestamp.
+		c.Last = d.Timestamp
 		c.logger.Info("handled new api dump")
 	}
 }
