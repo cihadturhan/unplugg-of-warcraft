@@ -8,6 +8,6 @@ type DatabaseService struct {
 }
 
 // InsertAuctions mocked method.
-func (s *DatabaseService) InsertAuctions(auctions []warcraft.Auction, timestamp int64) error {
+func (s *DatabaseService) InsertAuctions(auctions []warcraft.Auction) error {
 	return s.InsertAuctionsFn(auctions)
 }

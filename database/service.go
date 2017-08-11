@@ -15,20 +15,16 @@ type Service struct {
 }
 
 // InsertAuctions insets a slice of auctions into the database.
-func (s *Service) InsertAuctions(auctions []warcraft.Auction, timestamp int64) error {
+func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
 	start := time.Now()
 
-	// filter auctions.
+	// convert auctions to interface.
 	as := make([]interface{}, 0)
 	for _, a := range auctions {
-		if a.Timeleft != "SHORT" && a.Buyout != 0 {
-			a.Timestamp = s.client.Now().Unix()
-			as = append(as, a)
-		}
-		a.Timestamp = timestamp
+		as = append(as, a)
 	}
 
-	// insert auctions.
+	// batch auctions.
 	for i := 0; i < len(as); i = i + 1000 {
 		end := i + 1000
 		if end > len(as) {

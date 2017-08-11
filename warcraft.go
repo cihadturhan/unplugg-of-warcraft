@@ -3,11 +3,12 @@ package warcraft
 // BlizzardService handles interaction with the blizzard API.
 type BlizzardService interface {
 	GetAPIDump(realm, locale, key string, last int64) (*APIDump, error)
+	ValidateAuctions(dump *APIDump) ([]Auction, error)
 }
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
-	InsertAuctions(auctions []Auction, timestamp int64) error
+	InsertAuctions(auctions []Auction) error
 }
 
 // Request stores the url and timestamp of the requested dump.

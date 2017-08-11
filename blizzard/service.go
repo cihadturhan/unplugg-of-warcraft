@@ -30,3 +30,15 @@ func (s *Service) GetAPIDump(realm, locale, key string, last int64) (*warcraft.A
 
 	return d, nil
 }
+
+// ValidateAuctions filters invalid/unnecessary auctions.
+func (s *Service) ValidateAuctions(dump *warcraft.APIDump) ([]warcraft.Auction, error) {
+	as := make([]warcraft.Auction, 0)
+	for _, a := range dump.Auctions {
+		if a.Timeleft != "SHORT" && a.Buyout != 0 {
+			a.Timestamp = dump.Timestamp
+			as = append(as, a)
+		}
+	}
+	return as, nil
+}

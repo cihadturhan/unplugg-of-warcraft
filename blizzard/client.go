@@ -97,7 +97,7 @@ func (c *Client) GetDumpURL(realm, locale, key string) (*warcraft.Request, error
 	// check status code.
 	if response.StatusCode != 200 {
 		c.logger.WithFields(log.Fields{"code": response.StatusCode, "url": u.String()}).Error(errInvalidResponse)
-		return nil, err
+		return nil, errInvalidResponse
 	}
 
 	// decode response.
@@ -137,7 +137,7 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 	// check status code.
 	if response.StatusCode != 200 {
 		c.logger.WithFields(log.Fields{"code": response.StatusCode, "url": u.String()}).Error(errInvalidResponse)
-		return nil, err
+		return nil, errInvalidResponse
 	}
 
 	// decode response.
@@ -152,20 +152,30 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 	return &r, nil
 }
 
-// handleRequests makes periodic requests to the API..
+// handleRequests makes periodic requests to the API.
 func (c *Client) handleRequests() {
 	for range c.ticker.C {
+		// get dump.
 		d, err := c.Service().GetAPIDump(c.Realm, c.Locale, c.Key, c.Last)
 		if err != nil {
-			c.logger.WithFields(log.Fields{"error": err}).Warn("failed to get new api dump")
-			continue
-		}
-		if err := c.DatabaseService.InsertAuctions(d.Auctions, d.Timestamp); err != nil {
-			c.logger.WithFields(log.Fields{"error": err}).Warn("failed to save new api dump")
+			c.logger.WithFields(log.Fields{"error": err}).Warn(errGetDump)
 			continue
 		}
 
-		// save dump timestamp.
+		// filter dump.
+		a, err := c.service.ValidateAuctions(d)
+		if err != nil {
+			c.logger.WithFields(log.Fields{"error": err}).Warn(errFilterDump)
+			continue
+		}
+
+		// save dump.
+		if err := c.DatabaseService.InsertAuctions(a); err != nil {
+			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
+			continue
+		}
+
+		// update dump timestamp.
 		c.Last = d.Timestamp
 		c.logger.Info("handled new api dump")
 	}
