@@ -11,6 +11,11 @@ type DatabaseService interface {
 	InsertAuctions(auctions []Auction) error
 }
 
+// FilesService handles interaction with the saved dump files.
+type FilesService interface {
+	LoadFilesIntoDatabase(path string) error
+}
+
 // Request stores the url and timestamp of the requested dump.
 type Request struct {
 	URL      string `json:"url"`
