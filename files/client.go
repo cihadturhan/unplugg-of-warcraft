@@ -126,6 +126,9 @@ func (c *Client) LoadFileIntoDatabase(filename string) error {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errFailedDatabaseSave)
 		return err
 	}
+	if err := c.Remove(filename); err != nil {
+		return err
+	}
 
 	return nil
 }
