@@ -13,11 +13,6 @@ type Client struct {
 	// package logger.
 	logger *log.Entry
 
-	// default configs.
-	Realm  string
-	Locale string
-	Key    string
-
 	// service for interacting with the dump files.
 	service Service
 
@@ -32,9 +27,6 @@ type Client struct {
 func NewClient(realm, locale, key string) *Client {
 	c := &Client{
 		logger: log.WithFields(log.Fields{"package": "files"}),
-		Realm:  realm,
-		Locale: locale,
-		Key:    key,
 	}
 
 	c.service.client = c
