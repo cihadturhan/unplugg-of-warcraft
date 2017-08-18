@@ -43,22 +43,20 @@ func main() {
 
 	// create scraper client and service.
 	scraperClient := blizzard.NewClient(*timer, *realm, *locale, *apiKey)
+	scraperClient.DatabaseService = dbService
+	scraperService := scraperClient.Service()
 
+	// load files to the database.
 	if *loadDumpFiles {
-		scraperService := scraperClient.Service()
-		filesClient := files.NewClient(*realm, *locale, *apiKey)
+		filesClient := files.NewClient()
 		filesClient.DatabaseService = dbService
 		filesClient.BlizzardService = scraperService
-
 		filesService := filesClient.Service()
 		filesService.LoadFilesIntoDatabase("./")
-		return
-	}
-
-	scraperClient.DatabaseService = dbService
-
-	if err := scraperClient.Open(); err != nil {
-		panic(err)
+	} else {
+		if err := scraperClient.Open(); err != nil {
+			panic(err)
+		}
 	}
 
 	// graceful shutdown.

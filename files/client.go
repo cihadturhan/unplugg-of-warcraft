@@ -9,14 +9,10 @@ import (
 	"strconv"
 )
 
+// Client represents a client for interacting with the dump files.
 type Client struct {
 	// package logger.
 	logger *log.Entry
-
-	// default configs.
-	Realm  string
-	Locale string
-	Key    string
 
 	// service for interacting with the dump files.
 	service Service
@@ -28,13 +24,10 @@ type Client struct {
 	BlizzardService warcraft.BlizzardService
 }
 
-// NewClient returns a new configuration client.
-func NewClient(realm, locale, key string) *Client {
+// NewClient returns a new file loader client.
+func NewClient() *Client {
 	c := &Client{
 		logger: log.WithFields(log.Fields{"package": "files"}),
-		Realm:  realm,
-		Locale: locale,
-		Key:    key,
 	}
 
 	c.service.client = c
@@ -55,12 +48,10 @@ func (c *Client) GetFilenames(files []os.FileInfo) []string {
 
 	for _, file := range files {
 		filename := file.Name()
-
 		if isDumpFile(filename) {
 			dumpFiles = append(dumpFiles, filename)
 		}
 	}
-
 	return dumpFiles
 }
 
@@ -105,8 +96,8 @@ func (c *Client) Remove(filename string) error {
 	return nil
 }
 
+// LoadFileIntoDatabase loads a file to the database.
 func (c *Client) LoadFileIntoDatabase(filename string) error {
-
 	// read dump file
 	dump, err := c.Read(filename)
 	if err != nil {

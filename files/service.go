@@ -10,16 +10,16 @@ type Service struct {
 	client *Client
 }
 
-// loadFilesIntoDatabase loads the Blizzard API dump files into the DB
+// LoadFilesIntoDatabase loads the Blizzard API dump files into the DB
 func (s *Service) LoadFilesIntoDatabase(path string) error {
 	// get all the files in the directory
-	files, err := ioutil.ReadDir(path)
-
+	f, err := ioutil.ReadDir(path)
 	if err != nil {
 		s.client.logger.WithFields(log.Fields{"error": err}).Error("Failed to get directory files")
 		return err
 	}
-	filenames := s.client.GetFilenames(files)
+
+	filenames := s.client.GetFilenames(f)
 
 	// load files to database
 	for _, filename := range filenames {
