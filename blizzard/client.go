@@ -39,7 +39,7 @@ type Client struct {
 	DatabaseService warcraft.DatabaseService
 }
 
-// NewClient returns a new configuration client.
+// NewClient returns a new scrapper client.
 func NewClient(timer int, realm, locale, key string) *Client {
 	c := &Client{
 		logger: log.WithFields(log.Fields{"package": "blizzard"}),

@@ -64,7 +64,7 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB("warcraft").C(AuctionCollection)
+	col := session.DB("").C(AuctionCollection)
 
 	// insert auctions.
 	b := col.Bulk()
