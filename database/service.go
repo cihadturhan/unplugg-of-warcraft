@@ -38,3 +38,23 @@ func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
 	s.client.logger.WithFields(log.Fields{"count": len(as), "time": time.Since(start)}).Info("auctions inserted")
 	return nil
 }
+
+// GetAuctions returns all the auctions
+func (s *Service) GetAuctions() ([]warcraft.Auction, error) {
+	auctions, err := s.client.GetAuctions()
+	if err != nil {
+		return nil, err
+	}
+
+	return auctions, nil
+}
+
+// GetAuctionsInTimestamp returns all the auctions present in the timestamp provided
+func (s *Service) GetAuctionsInTimeStamp(timestamp int64) ([]warcraft.Auction, error) {
+	auctions, err := s.client.GetAuctionsInTimeStamp(timestamp)
+	if err != nil {
+		return nil, err
+	}
+
+	return auctions, nil
+}

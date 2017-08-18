@@ -9,6 +9,8 @@ type BlizzardService interface {
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
 	InsertAuctions(auctions []Auction) error
+	GetAuctions() ([]Auction, error)
+	GetAuctionsInTimeStamp(timestamp int64) ([]Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.
@@ -44,4 +46,13 @@ type Auction struct {
 	Quantity  int    `json:"quantity" bson:"quantity"`
 	Timeleft  string `json:"timeLeft" bson:"timeLeft"`
 	Timestamp int64  `json:"timestamp,omitempty" bson:"timestamp"`
+}
+
+// Buyout stores an auction metadata.
+type Buyout struct {
+	ID        int   `json:"auc" bson:"auc"`
+	Item      int   `json:"item" bson:"item"`
+	Buyout    int   `json:"buyout" bson:"buyout"`
+	Quantity  int   `json:"quantity" bson:"quantity"`
+	Timestamp int64 `json:"timestamp,omitempty" bson:"timestamp"`
 }

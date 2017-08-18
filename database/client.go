@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -64,7 +65,7 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB(c.Host).C(AuctionCollection)
+	col := session.DB("warcraft").C(AuctionCollection)
 
 	// insert auctions.
 	b := col.Bulk()
@@ -75,4 +76,38 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 		return nil
 	}
 	return nil
+}
+
+// GetAuctions returns all the auctions
+func (c *Client) GetAuctions() ([]warcraft.Auction, error) {
+	// connect to collection.
+	session := c.Session.Copy()
+	defer session.Close()
+	col := session.DB("warcraft").C(AuctionCollection)
+
+	// get auctions.
+	var auctions []warcraft.Auction
+	if err := col.Find(nil).All(&auctions); err != nil {
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
+		return nil, err
+	}
+
+	return auctions, nil
+}
+
+// GetAuctionsInTimestamp returns all the auctions present in the timestamp provided
+func (c *Client) GetAuctionsInTimeStamp(timestamp int64) ([]warcraft.Auction, error) {
+	// connect to collection.
+	session := c.Session.Copy()
+	defer session.Close()
+	col := session.DB("warcraft").C(AuctionCollection)
+
+	// get auctions.
+	var auctions []warcraft.Auction
+	if err := col.Find(bson.M{"timestamp": timestamp}).All(&auctions); err != nil {
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
+		return nil, err
+	}
+
+	return auctions, nil
 }
