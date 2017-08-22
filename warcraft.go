@@ -8,9 +8,9 @@ type BlizzardService interface {
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
-	InsertAuctions(auctions []Auction) error
-	GetAuctions() ([]Auction, error)
-	GetAuctionsInTimeStamp(timestamp int64) ([]Auction, error)
+	InsertAuctions(collectionName string, auctions []Auction) error
+	GetAuctions(collectionName string) ([]Auction, error)
+	GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.

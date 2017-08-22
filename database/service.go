@@ -6,16 +6,13 @@ import (
 	"time"
 )
 
-// AuctionCollection is the default name for the auction collection.
-const AuctionCollection = "auctions"
-
 // Service represents a service for interacting with the database.
 type Service struct {
 	client *Client
 }
 
 // InsertAuctions insets a slice of auctions into the database.
-func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
+func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auction) error {
 	start := time.Now()
 
 	// convert auctions to interface.
@@ -30,7 +27,7 @@ func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
 		if end > len(as) {
 			end = len(as) - 1
 		}
-		if err := s.client.InsertAuctions(as[i:end]); err != nil {
+		if err := s.client.InsertAuctions(collectionName, as[i:end]); err != nil {
 			return nil
 		}
 	}
@@ -40,8 +37,8 @@ func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
 }
 
 // GetAuctions returns all the auctions
-func (s *Service) GetAuctions() ([]warcraft.Auction, error) {
-	auctions, err := s.client.GetAuctions()
+func (s *Service) GetAuctions(collectionName string) ([]warcraft.Auction, error) {
+	auctions, err := s.client.GetAuctions(collectionName)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +46,9 @@ func (s *Service) GetAuctions() ([]warcraft.Auction, error) {
 	return auctions, nil
 }
 
-// GetAuctionsInTimestamp returns all the auctions present in the timestamp provided
-func (s *Service) GetAuctionsInTimeStamp(timestamp int64) ([]warcraft.Auction, error) {
-	auctions, err := s.client.GetAuctionsInTimeStamp(timestamp)
+// GetAuctionsInTimeStamp returns all the auctions present in the timestamp provided
+func (s *Service) GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]warcraft.Auction, error) {
+	auctions, err := s.client.GetAuctionsInTimeStamp(collectionName, timestamp)
 	if err != nil {
 		return nil, err
 	}

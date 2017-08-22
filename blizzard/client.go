@@ -12,6 +12,9 @@ import (
 // Host is the target api location.
 const Host string = "https://eu.api.battle.net/wow/auction/data/"
 
+// AuctionCollection is the default name for the auction collection.
+const AuctionCollection = "auctions"
+
 // Client represents a client for interacting with the blizzard API.
 type Client struct {
 	// package logger.
@@ -170,7 +173,7 @@ func (c *Client) handleRequests() {
 		}
 
 		// save dump.
-		if err := c.DatabaseService.InsertAuctions(a); err != nil {
+		if err := c.DatabaseService.InsertAuctions(AuctionCollection, a); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
 			continue
 		}

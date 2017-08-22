@@ -57,15 +57,12 @@ func (c *Client) Close() error {
 	return nil
 }
 
-// Service returns the service associated with the client.
-func (c *Client) Service() warcraft.DatabaseService { return &c.service }
-
 // InsertAuctions inserts a slice of auctions into the database.
-func (c *Client) InsertAuctions(auctions []interface{}) error {
+func (c *Client) InsertAuctions(collectionName string, auctions []interface{}) error {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB("warcraft").C(AuctionCollection)
+	col := session.DB("warcraft").C(collectionName)
 
 	// insert auctions.
 	b := col.Bulk()
@@ -78,12 +75,14 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 	return nil
 }
 
+//TODO duplicate code need to refactor this
+
 // GetAuctions returns all the auctions
-func (c *Client) GetAuctions() ([]warcraft.Auction, error) {
+func (c *Client) GetAuctions(collectionName string) ([]warcraft.Auction, error) {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB("warcraft").C(AuctionCollection)
+	col := session.DB("warcraft").C(collectionName)
 
 	// get auctions.
 	var auctions []warcraft.Auction
@@ -95,12 +94,12 @@ func (c *Client) GetAuctions() ([]warcraft.Auction, error) {
 	return auctions, nil
 }
 
-// GetAuctionsInTimestamp returns all the auctions present in the timestamp provided
-func (c *Client) GetAuctionsInTimeStamp(timestamp int64) ([]warcraft.Auction, error) {
+// GetAuctionsInTimeStamp returns all the auctions present in the timestamp provided
+func (c *Client) GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]warcraft.Auction, error) {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB("warcraft").C(AuctionCollection)
+	col := session.DB("warcraft").C(collectionName)
 
 	// get auctions.
 	var auctions []warcraft.Auction
@@ -111,3 +110,6 @@ func (c *Client) GetAuctionsInTimeStamp(timestamp int64) ([]warcraft.Auction, er
 
 	return auctions, nil
 }
+
+// Service returns the service associated with the client.
+func (c *Client) Service() warcraft.DatabaseService { return &c.service }
