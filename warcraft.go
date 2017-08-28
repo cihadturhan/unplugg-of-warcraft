@@ -8,6 +8,7 @@ type BlizzardService interface {
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
+	InsertBuyouts(collectionName string, buyouts []Buyout) error
 	InsertAuctions(collectionName string, auctions []Auction) error
 	GetAuctions(collectionName string) ([]Auction, error)
 	GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]Auction, error)
@@ -16,6 +17,11 @@ type DatabaseService interface {
 // FilesService handles interaction with the saved dump files.
 type FilesService interface {
 	LoadFilesIntoDatabase(path string) error
+}
+
+// AnalyzerService handles interaction with the dump analyzer
+type AnalyzerService interface {
+	AnalyzeDumpsFirstTime(auctions []Auction)
 }
 
 // Request stores the url and timestamp of the requested dump.
@@ -48,7 +54,7 @@ type Auction struct {
 	Timestamp int64  `json:"timestamp,omitempty" bson:"timestamp"`
 }
 
-// Buyout stores an auction metadata.
+// Buyout stores an auction that ended.
 type Buyout struct {
 	ID        int   `json:"auc" bson:"auc"`
 	Item      int   `json:"item" bson:"item"`
