@@ -11,40 +11,20 @@ type Service struct {
 	client *Client
 }
 
-// TODO reduce code size
-// InsertBuyouts insets a slice of buyouts into the database.
-func (s *Service) InsertBuyouts(collectionName string, buyouts []warcraft.Buyout) error {
-	start := time.Now()
-
-	// convert auctions to interface.
-	as := make([]interface{}, 0)
-	for _, a := range buyouts {
-		as = append(as, a)
-	}
-
-	// batch auctions.
-	for i := 0; i < len(as); i = i + 1000 {
-		end := i + 1000
-		if end > len(as) {
-			end = len(as) - 1
-		}
-		if err := s.client.InsertAuctions(collectionName, as[i:end]); err != nil {
-			return nil
-		}
-	}
-
-	s.client.logger.WithFields(log.Fields{"count": len(as), "time": time.Since(start)}).Info("buyouts inserted")
-	return nil
-}
-
 // InsertAuctions inserts a slice of auctions into the database.
-func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auction) error {
+func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auction, buyouts []warcraft.Buyout) error {
 	start := time.Now()
 
 	// convert auctions to interface.
 	as := make([]interface{}, 0)
-	for _, a := range auctions {
-		as = append(as, a)
+	if auctions != nil {
+		for _, a := range auctions {
+			as = append(as, a)
+		}
+	} else {
+		for _, a := range buyouts {
+			as = append(as, a)
+		}
 	}
 
 	// batch auctions.
