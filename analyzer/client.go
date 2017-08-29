@@ -72,7 +72,17 @@ func (c *Client) Search(auctions []warcraft.Auction, search int) warcraft.Auctio
 	return ac
 }
 
-// TODO reduce code size
+// CreateBuyout receives an auction and converts it to an buyout
+func (c *Client) CreateBuyout(auction warcraft.Auction) warcraft.Buyout {
+	return warcraft.Buyout{
+		ID:        auction.ID,
+		Item:      auction.Item,
+		Buyout:    auction.Buyout,
+		Quantity:  auction.Quantity,
+		Timestamp: auction.Timestamp,
+	}
+}
+
 // AddAuctionsThatEndedToBuyoutsCollection checks which auctions have ended and adds the ones that ended to the buyout collection
 func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(occurencesHash map[int]int, auctions []warcraft.Auction) error {
 	buyoutAuctions := make([]warcraft.Buyout, 0)
@@ -80,13 +90,7 @@ func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(occurencesHash map[int]
 	for key, value := range occurencesHash {
 		if value == 0 {
 			auction := c.Search(auctions, key)
-			buyout := warcraft.Buyout{
-				ID:        auction.ID,
-				Item:      auction.Item,
-				Buyout:    auction.Buyout,
-				Quantity:  auction.Quantity,
-				Timestamp: auction.Timestamp,
-			}
+			buyout := c.CreateBuyout(auction)
 			buyoutAuctions = append(buyoutAuctions, buyout)
 		}
 	}
