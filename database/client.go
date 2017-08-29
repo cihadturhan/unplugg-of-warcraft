@@ -37,6 +37,23 @@ func NewClient(h string) *Client {
 	return c
 }
 
+// ConvertAuctionsToInterface receives auctions and converts them to interface
+func (c *Client) ConvertAuctionsToInterface(auctions []warcraft.Auction, buyouts []warcraft.Buyout) []interface{} {
+	interfaces := make([]interface{}, 0)
+
+	if auctions != nil {
+		for _, a := range auctions {
+			interfaces = append(interfaces, a)
+		}
+	} else {
+		for _, a := range buyouts {
+			interfaces = append(interfaces, a)
+		}
+	}
+
+	return interfaces
+}
+
 // Open opens and initializes the MongoDB database.
 func (c *Client) Open() error {
 	// connect to the database.
