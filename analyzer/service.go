@@ -36,3 +36,20 @@ func (s *Service) AnalyzeDumpsFirstTime(auctions []warcraft.Auction) {
 		}
 	}
 }
+
+// AnalyzeDumps compares the last dump with the new one
+func (s *Service) AnalyzeDumps(lastTimestamp int64, newAuctions []warcraft.Auction) error {
+	var lastAuctions []warcraft.Auction
+	var err error
+
+	if lastAuctions, err = s.client.DatabaseService.GetAuctionsInTimeStamp("auctions", lastTimestamp); err != nil {
+		return err
+	}
+	occurencesHash := s.client.NumberOfOcurrences(lastAuctions, newAuctions)
+
+	if err = s.client.AddAuctionsThatEndedToBuyoutsCollection(occurencesHash, lastAuctions); err != nil {
+		return err
+	}
+
+	return nil
+}

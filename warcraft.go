@@ -21,6 +21,7 @@ type FilesService interface {
 // AnalyzerService handles interaction with the dump analyzer
 type AnalyzerService interface {
 	AnalyzeDumpsFirstTime(auctions []Auction)
+	AnalyzeDumps(lastTimestamp int64, newAuctions []Auction)
 }
 
 // Request stores the url and timestamp of the requested dump.
