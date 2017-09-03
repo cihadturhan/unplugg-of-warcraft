@@ -6,6 +6,7 @@ import (
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"net/http"
 	"net/url"
+	"sort"
 	"time"
 )
 
@@ -40,6 +41,9 @@ type Client struct {
 
 	// database service.
 	DatabaseService warcraft.DatabaseService
+
+	// service to analyze dump data
+	AnalyzerService warcraft.AnalyzerService
 }
 
 // NewClient returns a new scrapper client.
@@ -178,9 +182,27 @@ func (c *Client) handleRequests() {
 			continue
 		}
 
-		// update dump timestamp.
-		c.Last = d.Timestamp
-		c.logger.Info("handled new api dump")
+		// save auctions that ended
+		if c.Last != 0 {
+			c.AnalyzerService.AnalyzeDumps(c.Last, a)
+
+			// update dump timestamp.
+			c.Last = d.Timestamp
+			c.logger.Info("handled new api dump")
+		} else {
+			// get all the starting auctions
+			auctions, err := c.DatabaseService.GetAuctions("auctions")
+			if err != nil {
+				continue
+			}
+
+			// sort auctions by timestamp
+			sort.Slice(auctions, func(i, j int) bool {
+				return auctions[i].Timestamp < auctions[j].Timestamp
+			})
+
+			c.Last = auctions[len(auctions)-1].Timestamp
+		}
 	}
 }
 
