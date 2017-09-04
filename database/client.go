@@ -95,7 +95,7 @@ func (c *Client) InsertAuctions(collectionName string, auctions []interface{}) e
 //TODO duplicate code need to refactor this
 
 // GetAuctions returns all the auctions
-func (c *Client) GetAuctions(collectionName string) ([]warcraft.Auction, error) {
+func (c *Client) GetAuctions(collectionName string, options interface{}) ([]warcraft.Auction, error) {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
@@ -103,24 +103,13 @@ func (c *Client) GetAuctions(collectionName string) ([]warcraft.Auction, error) 
 
 	// get auctions.
 	var auctions []warcraft.Auction
-	if err := col.Find(nil).All(&auctions); err != nil {
-		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
-		return nil, err
+
+	// If we have query options convert interface{} to bson
+	if options != nil {
+		options = bson.M{"timestamp": options}
 	}
 
-	return auctions, nil
-}
-
-// GetAuctionsInTimeStamp returns all the auctions present in the timestamp provided
-func (c *Client) GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]warcraft.Auction, error) {
-	// connect to collection.
-	session := c.Session.Copy()
-	defer session.Close()
-	col := session.DB("warcraft").C(collectionName)
-
-	// get auctions.
-	var auctions []warcraft.Auction
-	if err := col.Find(bson.M{"timestamp": timestamp}).All(&auctions); err != nil {
+	if err := col.Find(options).All(&auctions); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
 		return nil, err
 	}

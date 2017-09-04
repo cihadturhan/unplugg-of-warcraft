@@ -5,6 +5,8 @@ import (
 	"sort"
 )
 
+const AuctionCollection = "auctions"
+
 // Service represents a service for interacting with the dump files.
 type Service struct {
 	client *Client
@@ -38,11 +40,11 @@ func (s *Service) AnalyzeDumpsFirstTime(auctions []warcraft.Auction) {
 }
 
 // AnalyzeDumps compares the last dump with the new one
-func (s *Service) AnalyzeDumps(lastTimestamp int64, newAuctions []warcraft.Auction) {
+func (s *Service) AnalyzeDumps(lastTimestamp interface{}, newAuctions []warcraft.Auction) {
 	var lastAuctions []warcraft.Auction
 	var err error
 
-	if lastAuctions, err = s.client.DatabaseService.GetAuctionsInTimeStamp("auctions", lastTimestamp); err != nil {
+	if lastAuctions, err = s.client.DatabaseService.GetAuctions(AuctionCollection, lastTimestamp); err != nil {
 		return
 	}
 	occurencesHash := s.client.NumberOfOcurrences(lastAuctions, newAuctions)

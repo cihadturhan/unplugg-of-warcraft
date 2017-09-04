@@ -9,8 +9,7 @@ type BlizzardService interface {
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
 	InsertAuctions(collectionName string, auctions []Auction, buyouts []Buyout) error
-	GetAuctions(collectionName string) ([]Auction, error)
-	GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]Auction, error)
+	GetAuctions(collectionName string, options interface{}) ([]Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.
@@ -21,7 +20,7 @@ type FilesService interface {
 // AnalyzerService handles interaction with the dump analyzer
 type AnalyzerService interface {
 	AnalyzeDumpsFirstTime(auctions []Auction)
-	AnalyzeDumps(lastTimestamp int64, newAuctions []Auction)
+	AnalyzeDumps(lastTimestamp interface{}, newAuctions []Auction)
 }
 
 // Request stores the url and timestamp of the requested dump.

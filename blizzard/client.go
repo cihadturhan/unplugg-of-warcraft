@@ -182,6 +182,7 @@ func (c *Client) handleRequests() {
 			continue
 		}
 
+		// TODO fix this
 		// save auctions that ended
 		if c.Last != 0 {
 			c.AnalyzerService.AnalyzeDumps(c.Last, a)
@@ -191,7 +192,7 @@ func (c *Client) handleRequests() {
 			c.logger.Info("handled new api dump")
 		} else {
 			// get all the starting auctions
-			auctions, err := c.DatabaseService.GetAuctions("auctions")
+			auctions, err := c.DatabaseService.GetAuctions(AuctionCollection, nil)
 			if err != nil {
 				continue
 			}

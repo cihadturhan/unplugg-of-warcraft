@@ -39,18 +39,8 @@ func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auct
 }
 
 // GetAuctions returns all the auctions
-func (s *Service) GetAuctions(collectionName string) ([]warcraft.Auction, error) {
-	auctions, err := s.client.GetAuctions(collectionName)
-	if err != nil {
-		return nil, err
-	}
-
-	return auctions, nil
-}
-
-// GetAuctionsInTimeStamp returns all the auctions present in the timestamp provided
-func (s *Service) GetAuctionsInTimeStamp(collectionName string, timestamp int64) ([]warcraft.Auction, error) {
-	auctions, err := s.client.GetAuctionsInTimeStamp(collectionName, timestamp)
+func (s *Service) GetAuctions(collectionName string, options interface{}) ([]warcraft.Auction, error) {
+	auctions, err := s.client.GetAuctions(collectionName, options)
 	if err != nil {
 		return nil, err
 	}
