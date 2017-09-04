@@ -5,6 +5,8 @@ import (
 	"github.com/whitesmith/unplugg-of-warcraft"
 )
 
+const BuyoutsCollection = "buyouts"
+
 // Client represents a client for interacting with the analyzer
 type Client struct {
 	// package logger.
@@ -94,7 +96,7 @@ func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(occurencesHash map[int]
 			buyoutAuctions = append(buyoutAuctions, buyout)
 		}
 	}
-	if err := c.DatabaseService.InsertAuctions("buyouts", nil, buyoutAuctions); err != nil {
+	if err := c.DatabaseService.InsertAuctions(BuyoutsCollection, nil, buyoutAuctions); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error("Failed to insert buyout")
 		return err
 	}
