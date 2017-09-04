@@ -23,7 +23,9 @@ func (s *Service) LoadFilesIntoDatabase(path string) error {
 
 	// load files to database
 	for _, filename := range filenames {
-		s.client.LoadFileIntoDatabase(filename)
+		if err := s.client.LoadFileIntoDatabase(filename); err != nil {
+			continue
+		}
 	}
 
 	return nil
