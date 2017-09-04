@@ -116,7 +116,7 @@ func (c *Client) LoadFileIntoDatabase(filename string) error {
 	}
 
 	// save dump.
-	if err := c.DatabaseService.InsertAuctions(AuctionCollection, auctions, nil); err != nil {
+	if err := c.DatabaseService.Insert(AuctionCollection, auctions, nil); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errFailedDatabaseSave)
 		return err
 	}

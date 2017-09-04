@@ -12,7 +12,7 @@ type Service struct {
 }
 
 // InsertAuctions inserts a slice of auctions into the database.
-func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auction, buyouts []warcraft.Buyout) error {
+func (s *Service) Insert(collectionName string, auctions []warcraft.Auction, buyouts []warcraft.Buyout) error {
 	start := time.Now()
 	var as []interface{}
 
@@ -29,7 +29,7 @@ func (s *Service) InsertAuctions(collectionName string, auctions []warcraft.Auct
 		if end > len(as) {
 			end = len(as) - 1
 		}
-		if err := s.client.InsertAuctions(collectionName, as[i:end]); err != nil {
+		if err := s.client.Insert(collectionName, as[i:end]); err != nil {
 			return nil
 		}
 	}

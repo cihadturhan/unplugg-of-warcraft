@@ -75,7 +75,7 @@ func (c *Client) Close() error {
 }
 
 // InsertAuctions inserts a slice of auctions into the database.
-func (c *Client) InsertAuctions(collectionName string, auctions []interface{}) error {
+func (c *Client) Insert(collectionName string, auctions []interface{}) error {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()

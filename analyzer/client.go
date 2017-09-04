@@ -96,7 +96,7 @@ func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(occurencesHash map[int]
 			buyoutAuctions = append(buyoutAuctions, buyout)
 		}
 	}
-	if err := c.DatabaseService.InsertAuctions(BuyoutsCollection, nil, buyoutAuctions); err != nil {
+	if err := c.DatabaseService.Insert(BuyoutsCollection, nil, buyoutAuctions); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error("Failed to insert buyout")
 		return err
 	}

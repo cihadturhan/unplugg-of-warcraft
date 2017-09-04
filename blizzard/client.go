@@ -177,7 +177,7 @@ func (c *Client) handleRequests() {
 		}
 
 		// save dump.
-		if err := c.DatabaseService.InsertAuctions(AuctionCollection, a, nil); err != nil {
+		if err := c.DatabaseService.Insert(AuctionCollection, a, nil); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
 			continue
 		}
