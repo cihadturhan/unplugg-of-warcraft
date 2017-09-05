@@ -32,8 +32,7 @@ func (s *Service) AnalyzeDumpsFirstTime(auctions []warcraft.Auction) {
 		}
 
 		nextChunk, index = s.client.GetChunkOfAuctions(index, auctions)
-		occurencesHash := s.client.NumberOfOcurrences(chunk, nextChunk)
-		if err := s.client.AddAuctionsThatEndedToBuyoutsCollection(occurencesHash, auctions); err != nil {
+		if err := s.client.AddAuctionsThatEndedToBuyoutsCollection(chunk, nextChunk); err != nil {
 			continue
 		}
 	}
@@ -47,9 +46,8 @@ func (s *Service) AnalyzeDumps(lastTimestamp interface{}, newAuctions []warcraft
 	if lastAuctions, err = s.client.DatabaseService.Find(AuctionCollection, lastTimestamp); err != nil {
 		return
 	}
-	occurencesHash := s.client.NumberOfOcurrences(lastAuctions, newAuctions)
 
-	if err = s.client.AddAuctionsThatEndedToBuyoutsCollection(occurencesHash, lastAuctions); err != nil {
+	if err = s.client.AddAuctionsThatEndedToBuyoutsCollection(lastAuctions, newAuctions); err != nil {
 		return
 	}
 

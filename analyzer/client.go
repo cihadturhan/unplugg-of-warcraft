@@ -59,21 +59,6 @@ func (c *Client) AuctionIsPresentInNextDump(auctionID int, occurencesHash map[in
 	return true
 }
 
-// TODO optimize code
-// Search for the auction with a given an ID
-func (c *Client) Search(auctions []warcraft.Auction, search int) warcraft.Auction {
-	var ac warcraft.Auction
-
-	for _, auction := range auctions {
-		if auction.ID == search {
-			ac = auction
-			return ac
-		}
-	}
-
-	return ac
-}
-
 // CreateBuyout receives an auction and converts it to an buyout
 func (c *Client) CreateBuyout(auction warcraft.Auction) warcraft.Buyout {
 	return warcraft.Buyout{
@@ -85,18 +70,47 @@ func (c *Client) CreateBuyout(auction warcraft.Auction) warcraft.Buyout {
 	}
 }
 
-// AddAuctionsThatEndedToBuyoutsCollection checks which auctions have ended and adds the ones that ended to the buyout collection
-func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(occurencesHash map[int]int, auctions []warcraft.Auction) error {
-	buyoutAuctions := make([]warcraft.Buyout, 0)
-
-	for key, value := range occurencesHash {
-		if value == 0 {
-			auction := c.Search(auctions, key)
-			buyout := c.CreateBuyout(auction)
-			buyoutAuctions = append(buyoutAuctions, buyout)
+// Search searchs for an auction ID in an array
+func (c *Client) Search(searchID int, auctions []warcraft.Auction) bool {
+	for _, auction := range auctions {
+		if auction.ID == searchID {
+			return true
 		}
 	}
-	if err := c.DatabaseService.Insert(BuyoutsCollection, nil, buyoutAuctions); err != nil {
+
+	return false
+}
+
+// CreateAuctionsMap returns an map with auctionID has key and a pointer to auction has the value
+func (c *Client) CreateAuctionsMap(auctions []warcraft.Auction) map[int]warcraft.Auction {
+	auctionsHash := make(map[int]warcraft.Auction, 0)
+
+	for _, auction := range auctions {
+		auctionsHash[auction.ID] = auction
+	}
+
+	return auctionsHash
+}
+
+// AuctionsThatEnded returns all the auctions that not present in the next dump (ended)
+func (c *Client) AuctionsThatEnded(prevAuctions map[int]warcraft.Auction, auctions []warcraft.Auction) []warcraft.Buyout {
+	results := make([]warcraft.Buyout, 0)
+
+	for key, value := range prevAuctions {
+		if c.Search(key, auctions) {
+			results = append(results, c.CreateBuyout(value))
+		}
+	}
+
+	return results
+}
+
+// AddAuctionsThatEndedToBuyoutsCollection checks which auctions have ended and adds the ones that ended to the buyout collection
+func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(prevAuctions []warcraft.Auction, auctions []warcraft.Auction) error {
+	prevAuctionsMap := c.CreateAuctionsMap(prevAuctions)
+	buyouts := c.AuctionsThatEnded(prevAuctionsMap, auctions)
+
+	if err := c.DatabaseService.Insert(BuyoutsCollection, nil, buyouts); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error("Failed to insert buyout")
 		return err
 	}
