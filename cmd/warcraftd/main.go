@@ -50,6 +50,7 @@ func main() {
 	// create scraper client and service.
 	scraperClient := blizzard.NewClient(*timer, *realm, *locale, *apiKey)
 	scraperClient.DatabaseService = dbService
+	scraperClient.AnalyzerService = analyzerService
 	scraperService := scraperClient.Service()
 
 	// load files to the database.

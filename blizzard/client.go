@@ -161,6 +161,20 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 
 // handleRequests makes periodic requests to the API.
 func (c *Client) handleRequests() {
+	// The database already has dumps
+	if c.Last == 0 {
+		auctions, err := c.DatabaseService.GetAuctions(AuctionCollection, nil)
+
+		if err == nil && auctions != nil {
+			// sort auctions by timestamp
+			sort.Slice(auctions, func(i, j int) bool {
+				return auctions[i].Timestamp < auctions[j].Timestamp
+			})
+
+			c.Last = auctions[len(auctions)-1].Timestamp
+		}
+	}
+
 	for range c.ticker.C {
 		// get dump.
 		d, err := c.Service().GetAPIDump(c.Realm, c.Locale, c.Key, c.Last)
@@ -182,28 +196,11 @@ func (c *Client) handleRequests() {
 			continue
 		}
 
-		// TODO fix this
-		// save auctions that ended
-		if c.Last != 0 {
-			c.AnalyzerService.AnalyzeDumps(c.Last, a)
+		c.AnalyzerService.AnalyzeDumps(c.Last, a)
 
-			// update dump timestamp.
-			c.Last = d.Timestamp
-			c.logger.Info("handled new api dump")
-		} else {
-			// get all the starting auctions
-			auctions, err := c.DatabaseService.GetAuctions(AuctionCollection, nil)
-			if err != nil {
-				continue
-			}
-
-			// sort auctions by timestamp
-			sort.Slice(auctions, func(i, j int) bool {
-				return auctions[i].Timestamp < auctions[j].Timestamp
-			})
-
-			c.Last = auctions[len(auctions)-1].Timestamp
-		}
+		// update dump timestamp.
+		c.Last = d.Timestamp
+		c.logger.Info("handled new api dump")
 	}
 }
 
