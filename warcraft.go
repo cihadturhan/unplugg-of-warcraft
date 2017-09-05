@@ -9,7 +9,7 @@ type BlizzardService interface {
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
 	Insert(collectionName string, auctions []Auction, buyouts []Buyout) error
-	GetAuctions(collectionName string, options interface{}) ([]Auction, error)
+	Find(collectionName string, options interface{}) ([]Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.

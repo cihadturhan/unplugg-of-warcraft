@@ -39,8 +39,8 @@ func (s *Service) Insert(collectionName string, auctions []warcraft.Auction, buy
 }
 
 // GetAuctions returns all the auctions
-func (s *Service) GetAuctions(collectionName string, options interface{}) ([]warcraft.Auction, error) {
-	auctions, err := s.client.GetAuctions(collectionName, options)
+func (s *Service) Find(collectionName string, options interface{}) ([]warcraft.Auction, error) {
+	auctions, err := s.client.Find(collectionName, options)
 	if err != nil {
 		return nil, err
 	}

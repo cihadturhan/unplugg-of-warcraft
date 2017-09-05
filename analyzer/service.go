@@ -44,7 +44,7 @@ func (s *Service) AnalyzeDumps(lastTimestamp interface{}, newAuctions []warcraft
 	var lastAuctions []warcraft.Auction
 	var err error
 
-	if lastAuctions, err = s.client.DatabaseService.GetAuctions(AuctionCollection, lastTimestamp); err != nil {
+	if lastAuctions, err = s.client.DatabaseService.Find(AuctionCollection, lastTimestamp); err != nil {
 		return
 	}
 	occurencesHash := s.client.NumberOfOcurrences(lastAuctions, newAuctions)

@@ -95,7 +95,7 @@ func (c *Client) Insert(collectionName string, auctions []interface{}) error {
 //TODO duplicate code need to refactor this
 
 // GetAuctions returns all the auctions
-func (c *Client) GetAuctions(collectionName string, options interface{}) ([]warcraft.Auction, error) {
+func (c *Client) Find(collectionName string, options interface{}) ([]warcraft.Auction, error) {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()

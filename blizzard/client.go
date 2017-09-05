@@ -163,7 +163,7 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 func (c *Client) handleRequests() {
 	// The database already has dumps
 	if c.Last == 0 {
-		auctions, err := c.DatabaseService.GetAuctions(AuctionCollection, nil)
+		auctions, err := c.DatabaseService.Find(AuctionCollection, nil)
 
 		if err == nil && auctions != nil {
 			// sort auctions by timestamp

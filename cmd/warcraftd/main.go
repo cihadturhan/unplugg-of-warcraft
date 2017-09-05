@@ -63,7 +63,7 @@ func main() {
 		filesService.LoadFilesIntoDatabase("./")
 
 		// load buyouts
-		auctions, _ := dbService.GetAuctions("auctions", nil)
+		auctions, _ := dbService.Find("auctions", nil)
 		analyzerService.AnalyzeDumpsFirstTime(auctions)
 		return
 	} else {
