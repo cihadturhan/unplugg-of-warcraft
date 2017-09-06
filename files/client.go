@@ -25,6 +25,9 @@ type Client struct {
 
 	// blizzard service.
 	BlizzardService warcraft.BlizzardService
+
+	// analyzer service.
+	AnalyzerService warcraft.AnalyzerService
 }
 
 // NewClient returns a new file loader client.

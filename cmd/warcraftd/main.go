@@ -59,12 +59,10 @@ func main() {
 		filesClient := files.NewClient()
 		filesClient.DatabaseService = dbService
 		filesClient.BlizzardService = scraperService
+		filesClient.AnalyzerService = analyzerService
 		filesService := filesClient.Service()
 		filesService.LoadFilesIntoDatabase("./")
 
-		// load buyouts
-		auctions, _ := dbService.Find("auctions", nil)
-		analyzerService.AnalyzeDumpsFirstTime(auctions)
 		return
 	} else {
 		if err := scraperClient.Open(); err != nil {

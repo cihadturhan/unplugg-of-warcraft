@@ -19,7 +19,6 @@ type FilesService interface {
 
 // AnalyzerService handles interaction with the dump analyzer
 type AnalyzerService interface {
-	AnalyzeDumpsFirstTime(auctions []Auction)
 	AnalyzeDumps(lastTimestamp interface{}, newAuctions []Auction)
 }
 

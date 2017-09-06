@@ -30,28 +30,16 @@ func NewClient() *Client {
 }
 
 // CreateHash creates the hash to find duplicates
-func (c *Client) CreateHash(auctions []warcraft.Auction) map[int]int {
-	hash := make(map[int]int)
+func (c *Client) CreateHash(auctions []warcraft.Auction) map[int]warcraft.Auction {
+	auctionsHash := make(map[int]warcraft.Auction, 0)
 
 	for _, auction := range auctions {
-		hash[auction.ID] = 0
+		auctionsHash[auction.ID] = auction
 	}
 
-	return hash
+	return auctionsHash
 }
 
-// NumberOfOcurrences checks if the auction is present in the next dump
-func (c *Client) NumberOfOcurrences(auctions []warcraft.Auction, nextAuctions []warcraft.Auction) map[int]int {
-	hash := c.CreateHash(auctions)
-
-	for _, auction := range nextAuctions {
-		hash[auction.ID]++
-	}
-
-	return hash
-}
-
-// AuctionIsPresentInNextDump checks if the auction is present in the next dump
 func (c *Client) AuctionIsPresentInNextDump(auctionID int, occurencesHash map[int]int) bool {
 	if occurencesHash[auctionID] == 0 {
 		return false
@@ -81,17 +69,6 @@ func (c *Client) Search(searchID int, auctions []warcraft.Auction) bool {
 	return false
 }
 
-// CreateAuctionsMap returns an map with auctionID has key and a pointer to auction has the value
-func (c *Client) CreateAuctionsMap(auctions []warcraft.Auction) map[int]warcraft.Auction {
-	auctionsHash := make(map[int]warcraft.Auction, 0)
-
-	for _, auction := range auctions {
-		auctionsHash[auction.ID] = auction
-	}
-
-	return auctionsHash
-}
-
 // AuctionsThatEnded returns all the auctions that not present in the next dump (ended)
 func (c *Client) AuctionsThatEnded(prevAuctions map[int]warcraft.Auction, auctions []warcraft.Auction) []warcraft.Buyout {
 	results := make([]warcraft.Buyout, 0)
@@ -107,7 +84,7 @@ func (c *Client) AuctionsThatEnded(prevAuctions map[int]warcraft.Auction, auctio
 
 // AddAuctionsThatEndedToBuyoutsCollection checks which auctions have ended and adds the ones that ended to the buyout collection
 func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(prevAuctions []warcraft.Auction, auctions []warcraft.Auction) error {
-	prevAuctionsMap := c.CreateAuctionsMap(prevAuctions)
+	prevAuctionsMap := c.CreateHash(prevAuctions)
 	buyouts := c.AuctionsThatEnded(prevAuctionsMap, auctions)
 
 	if err := c.DatabaseService.Insert(BuyoutsCollection, nil, buyouts); err != nil {
@@ -116,29 +93,6 @@ func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(prevAuctions []warcraft
 	}
 
 	return nil
-}
-
-// GetChunkOfAuctions returns a chunk of auctions from the same timestamp
-func (c *Client) GetChunkOfAuctions(index int, auctions []warcraft.Auction) ([]warcraft.Auction, int) {
-	// get the first timestamp,
-	firstTimestamp := auctions[index].Timestamp
-	chunk := make([]warcraft.Auction, 0)
-	chunk = append(chunk, auctions[index])
-	i := index + 1
-	if i >= len(auctions) {
-		return chunk, i
-	}
-
-	for i < len(auctions) {
-		if auctions[i].Timestamp == firstTimestamp {
-			chunk = append(chunk, auctions[i])
-			i++
-		} else {
-			break
-		}
-	}
-
-	return chunk, i
 }
 
 // Service returns the service for interacting with the dump analyzer
