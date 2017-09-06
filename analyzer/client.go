@@ -40,13 +40,6 @@ func (c *Client) CreateHash(auctions []warcraft.Auction) map[int]warcraft.Auctio
 	return auctionsHash
 }
 
-func (c *Client) AuctionIsPresentInNextDump(auctionID int, occurencesHash map[int]int) bool {
-	if occurencesHash[auctionID] == 0 {
-		return false
-	}
-	return true
-}
-
 // CreateBuyout receives an auction and converts it to an buyout
 func (c *Client) CreateBuyout(auction warcraft.Auction) warcraft.Buyout {
 	return warcraft.Buyout{
@@ -58,10 +51,10 @@ func (c *Client) CreateBuyout(auction warcraft.Auction) warcraft.Buyout {
 	}
 }
 
-// Search searchs for an auction ID in an array
-func (c *Client) Search(searchID int, auctions []warcraft.Auction) bool {
+// AuctionIsPresentInDump searchs for an auction ID in an array
+func (c *Client) AuctionIsPresentInDump(auctionID int, auctions []warcraft.Auction) bool {
 	for _, auction := range auctions {
-		if auction.ID == searchID {
+		if auction.ID == auctionID {
 			return true
 		}
 	}
@@ -74,7 +67,7 @@ func (c *Client) AuctionsThatEnded(prevAuctions map[int]warcraft.Auction, auctio
 	results := make([]warcraft.Buyout, 0)
 
 	for key, value := range prevAuctions {
-		if c.Search(key, auctions) {
+		if c.AuctionIsPresentInDump(key, auctions) {
 			results = append(results, c.CreateBuyout(value))
 		}
 	}
