@@ -6,7 +6,6 @@ import (
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"net/http"
 	"net/url"
-	"sort"
 	"time"
 )
 
@@ -166,11 +165,6 @@ func (c *Client) handleRequests() {
 		auctions, err := c.DatabaseService.Find(AuctionCollection, nil)
 
 		if err == nil && auctions != nil {
-			// sort auctions by timestamp
-			sort.Slice(auctions, func(i, j int) bool {
-				return auctions[i].Timestamp < auctions[j].Timestamp
-			})
-
 			c.Last = auctions[len(auctions)-1].Timestamp
 		}
 	}
