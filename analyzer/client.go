@@ -70,7 +70,14 @@ func (c *Client) AddAuctionsThatEndedToBuyoutsCollection(prevAuctions []warcraft
 	auctionsMap := c.CreateHash(auctions)
 	buyouts := c.AuctionsThatEnded(prevAuctionsMap, auctionsMap)
 
-	if err := c.DatabaseService.Insert(BuyoutsCollection, nil, buyouts); err != nil {
+	// convert buyouts to interfaces
+	records := make([]interface{}, 0)
+	for _, buyout := range buyouts {
+		records = append(records, buyout)
+	}
+
+	// insert to database
+	if err := c.DatabaseService.Insert(BuyoutsCollection, records); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error("Failed to insert buyout")
 		return err
 	}

@@ -178,19 +178,25 @@ func (c *Client) handleRequests() {
 		}
 
 		// filter dump.
-		a, err := c.service.ValidateAuctions(d)
+		auctions, err := c.service.ValidateAuctions(d)
 		if err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errFilterDump)
 			continue
 		}
 
+		// convert auctions to interfaces
+		records := make([]interface{}, 0)
+		for _, auction := range auctions {
+			records = append(records, auction)
+		}
+
 		// save dump.
-		if err := c.DatabaseService.Insert(AuctionCollection, a, nil); err != nil {
+		if err := c.DatabaseService.Insert(AuctionCollection, records); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
 			continue
 		}
 
-		c.AnalyzerService.AnalyzeDumps(c.Last, a)
+		c.AnalyzerService.AnalyzeDumps(c.Last, auctions)
 
 		// update dump timestamp.
 		c.Last = d.Timestamp

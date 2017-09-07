@@ -118,8 +118,14 @@ func (c *Client) LoadFileIntoDatabase(filename string) error {
 		return err
 	}
 
+	// convert auctions to interfaces
+	records := make([]interface{}, 0)
+	for _, auction := range auctions {
+		records = append(records, auction)
+	}
+
 	// save dump.
-	if err := c.DatabaseService.Insert(AuctionCollection, auctions, nil); err != nil {
+	if err := c.DatabaseService.Insert(AuctionCollection, records); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errFailedDatabaseSave)
 		return err
 	}

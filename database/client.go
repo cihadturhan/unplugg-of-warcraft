@@ -92,8 +92,6 @@ func (c *Client) Insert(collectionName string, auctions []interface{}) error {
 	return nil
 }
 
-//TODO duplicate code need to refactor this
-
 // GetAuctions returns all the auctions
 func (c *Client) Find(collectionName string, options interface{}) ([]warcraft.Auction, error) {
 	// connect to collection.

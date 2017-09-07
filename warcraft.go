@@ -8,7 +8,7 @@ type BlizzardService interface {
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
-	Insert(collectionName string, auctions []Auction, buyouts []Buyout) error
+	Insert(collectionName string, records []interface{}) error
 	Find(collectionName string, options interface{}) ([]Auction, error)
 }
 

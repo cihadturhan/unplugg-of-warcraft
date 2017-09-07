@@ -12,16 +12,9 @@ type Service struct {
 }
 
 // InsertAuctions inserts a slice of auctions into the database.
-func (s *Service) Insert(collectionName string, auctions []warcraft.Auction, buyouts []warcraft.Buyout) error {
+func (s *Service) Insert(collectionName string, records []interface{}) error {
 	start := time.Now()
-	var as []interface{}
-
-	// convert auctions to interface.
-	if auctions != nil {
-		as = s.client.ConvertAuctionsToInterface(auctions, nil)
-	} else {
-		as = s.client.ConvertAuctionsToInterface(nil, buyouts)
-	}
+	as := records
 
 	// batch auctions.
 	for i := 0; i < len(as); i = i + 1000 {
