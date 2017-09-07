@@ -67,7 +67,7 @@ func (c *Client) AuctionsThatEnded(prevAuctions map[int]warcraft.Auction, auctio
 	results := make([]warcraft.Buyout, 0)
 
 	for key, value := range prevAuctions {
-		if c.AuctionIsPresentInDump(key, auctions) {
+		if !c.AuctionIsPresentInDump(key, auctions) {
 			results = append(results, c.CreateBuyout(value))
 		}
 	}
