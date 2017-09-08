@@ -5,17 +5,17 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const AuctionCollection = "auctions"
-
 // Service represents a service for interacting with the dump files.
 type Service struct {
 	client *Client
 }
 
+// AnalyzeDumps iterates the previous auctions and checks if they still exist in the new dump
+// if they don't exist it adds them to they buyouts collection
 func (s *Service) AnalyzeDumps(lastTimestamp interface{}, newAuctions []warcraft.Auction) {
 	query := bson.M{"timestamp": lastTimestamp}
 
-	lastAuctions, err := s.client.DatabaseService.Find(AuctionCollection, query)
+	lastAuctions, err := s.client.DatabaseService.Find(warcraft.AuctionCollection, query)
 	if err != nil {
 		return
 	}

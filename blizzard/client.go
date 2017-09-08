@@ -12,9 +12,6 @@ import (
 // Host is the target api location.
 const Host string = "https://eu.api.battle.net/wow/auction/data/"
 
-// AuctionCollection is the default name for the auction collection.
-const AuctionCollection = "auctions"
-
 // Client represents a client for interacting with the blizzard API.
 type Client struct {
 	// package logger.
@@ -162,7 +159,7 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 func (c *Client) handleRequests() {
 	// The database already has dumps
 	if c.Last == 0 {
-		auctions, err := c.DatabaseService.Find(AuctionCollection, nil)
+		auctions, err := c.DatabaseService.Find(warcraft.AuctionCollection, nil)
 
 		if err == nil && auctions != nil {
 			c.Last = auctions[len(auctions)-1].Timestamp
@@ -191,7 +188,7 @@ func (c *Client) handleRequests() {
 		}
 
 		// save dump.
-		if err := c.DatabaseService.Insert(AuctionCollection, records); err != nil {
+		if err := c.DatabaseService.Insert(warcraft.AuctionCollection, records); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
 			continue
 		}

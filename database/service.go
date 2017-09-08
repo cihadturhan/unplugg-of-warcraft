@@ -12,7 +12,7 @@ type Service struct {
 	client *Client
 }
 
-// InsertAuctions inserts a slice of auctions into the database.
+// Insert inserts a slice of auctions into the database.
 func (s *Service) Insert(collectionName string, records []interface{}) error {
 	start := time.Now()
 	as := records
@@ -32,7 +32,7 @@ func (s *Service) Insert(collectionName string, records []interface{}) error {
 	return nil
 }
 
-// GetAuctions returns all the auctions
+// Find returns all the auctions
 func (s *Service) Find(collectionName string, options bson.M) ([]warcraft.Auction, error) {
 	auctions, err := s.client.Find(collectionName, options)
 	if err != nil {

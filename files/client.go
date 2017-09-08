@@ -9,9 +9,6 @@ import (
 	"strconv"
 )
 
-// AuctionCollection is the default name for the auction collection.
-const AuctionCollection = "auctions"
-
 // Client represents a client for interacting with the dump files.
 type Client struct {
 	// package logger.
@@ -125,7 +122,7 @@ func (c *Client) LoadFileIntoDatabase(filename string) error {
 	}
 
 	// save dump.
-	if err := c.DatabaseService.Insert(AuctionCollection, records); err != nil {
+	if err := c.DatabaseService.Insert(warcraft.AuctionCollection, records); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errFailedDatabaseSave)
 		return err
 	}

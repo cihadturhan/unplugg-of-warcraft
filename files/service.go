@@ -49,7 +49,7 @@ func (s *Service) LoadFilesIntoDatabase(path string) error {
 			query := bson.M{"timestamp": timestamp}
 
 			// get auctions from timestamp
-			auctions, err = s.client.DatabaseService.Find(AuctionCollection, query)
+			auctions, err = s.client.DatabaseService.Find(warcraft.AuctionCollection, query)
 			if err != nil {
 				continue
 			}

@@ -4,6 +4,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const AuctionCollection = "auctions"
+const BuyoutCollection = "buyouts"
+
 // BlizzardService handles interaction with the blizzard API.
 type BlizzardService interface {
 	GetAPIDump(realm, locale, key string, last int64) (*APIDump, error)
