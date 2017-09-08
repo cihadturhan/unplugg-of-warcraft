@@ -1,5 +1,9 @@
 package warcraft
 
+import (
+	"gopkg.in/mgo.v2/bson"
+)
+
 // BlizzardService handles interaction with the blizzard API.
 type BlizzardService interface {
 	GetAPIDump(realm, locale, key string, last int64) (*APIDump, error)
@@ -9,7 +13,7 @@ type BlizzardService interface {
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
 	Insert(collectionName string, records []interface{}) error
-	Find(collectionName string, options interface{}) ([]Auction, error)
+	Find(collectionName string, options bson.M) ([]Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.

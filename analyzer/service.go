@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"github.com/whitesmith/unplugg-of-warcraft"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const AuctionCollection = "auctions"
@@ -12,7 +13,9 @@ type Service struct {
 }
 
 func (s *Service) AnalyzeDumps(lastTimestamp interface{}, newAuctions []warcraft.Auction) {
-	lastAuctions, err := s.client.DatabaseService.Find(AuctionCollection, lastTimestamp)
+	query := bson.M{"timestamp": lastTimestamp}
+
+	lastAuctions, err := s.client.DatabaseService.Find(AuctionCollection, query)
 	if err != nil {
 		return
 	}

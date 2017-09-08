@@ -3,6 +3,7 @@ package database
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func (s *Service) Insert(collectionName string, records []interface{}) error {
 }
 
 // GetAuctions returns all the auctions
-func (s *Service) Find(collectionName string, options interface{}) ([]warcraft.Auction, error) {
+func (s *Service) Find(collectionName string, options bson.M) ([]warcraft.Auction, error) {
 	auctions, err := s.client.Find(collectionName, options)
 	if err != nil {
 		return nil, err

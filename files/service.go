@@ -3,6 +3,7 @@ package files
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
+	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"strconv"
 )
@@ -23,12 +24,11 @@ func (s *Service) LoadFilesIntoDatabase(path string) error {
 
 	filenames := s.client.GetFilenames(f)
 
-	// TODO error when reading file does mistake here
 	// load files to database
-	var lastTimestamp, timestamp int
+	var lastTimestamp, timestamp int64
 	var auctions []warcraft.Auction
 
-	lastTimestamp, _ = strconv.Atoi(filenames[0])
+	lastTimestamp, _ = strconv.ParseInt(filenames[0], 10, 64)
 	if err := s.client.LoadFileIntoDatabase(filenames[0]); err != nil {
 		return err
 	}
@@ -39,14 +39,17 @@ func (s *Service) LoadFilesIntoDatabase(path string) error {
 
 		if err == nil {
 			// get timestamp from filename
-			timestamp, err = strconv.Atoi(filename)
+			timestamp, err = strconv.ParseInt(filename, 10, 64)
 			if err != nil {
 				s.client.logger.WithFields(log.Fields{"error": err}).Error("Failed to parse filename to timestamp")
 				continue
 			}
 
+			// build query
+			query := bson.M{"timestamp": timestamp}
+
 			// get auctions from timestamp
-			auctions, err = s.client.DatabaseService.Find(AuctionCollection, timestamp)
+			auctions, err = s.client.DatabaseService.Find(AuctionCollection, query)
 			if err != nil {
 				continue
 			}
@@ -58,7 +61,7 @@ func (s *Service) LoadFilesIntoDatabase(path string) error {
 			}
 
 			// update last timestamp
-			lastTimestamp, err = strconv.Atoi(filename)
+			lastTimestamp, err = strconv.ParseInt(filename, 10, 64)
 			if err != nil {
 				s.client.logger.WithFields(log.Fields{"error": err}).Error("Failed to parse filename to timestamp")
 			}

@@ -93,7 +93,7 @@ func (c *Client) Insert(collectionName string, auctions []interface{}) error {
 }
 
 // GetAuctions returns all the auctions
-func (c *Client) Find(collectionName string, options interface{}) ([]warcraft.Auction, error) {
+func (c *Client) Find(collectionName string, options bson.M) ([]warcraft.Auction, error) {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
@@ -101,11 +101,6 @@ func (c *Client) Find(collectionName string, options interface{}) ([]warcraft.Au
 
 	// get auctions.
 	var auctions []warcraft.Auction
-
-	// If we have query options convert interface{} to bson
-	if options != nil {
-		options = bson.M{"timestamp": options}
-	}
 
 	if err := col.Find(options).All(&auctions); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
