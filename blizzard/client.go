@@ -37,6 +37,9 @@ type Client struct {
 
 	// database service.
 	DatabaseService warcraft.DatabaseService
+
+	// service to analyze dump data
+	AnalyzerService warcraft.AnalyzerService
 }
 
 // NewClient returns a new scrapper client.
@@ -154,6 +157,15 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 
 // handleRequests makes periodic requests to the API.
 func (c *Client) handleRequests() {
+	// The database already has dumps
+	if c.Last == 0 {
+		lastRecord, err := c.DatabaseService.GetLastRecord(warcraft.AuctionCollection)
+
+		if err == nil {
+			c.Last = lastRecord.Timestamp
+		}
+	}
+
 	for range c.ticker.C {
 		// get dump.
 		d, err := c.Service().GetAPIDump(c.Realm, c.Locale, c.Key, c.Last)
@@ -163,17 +175,25 @@ func (c *Client) handleRequests() {
 		}
 
 		// filter dump.
-		a, err := c.service.ValidateAuctions(d)
+		auctions, err := c.service.ValidateAuctions(d)
 		if err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errFilterDump)
 			continue
 		}
 
+		// convert auctions to interfaces
+		records := make([]interface{}, 0)
+		for _, auction := range auctions {
+			records = append(records, auction)
+		}
+
 		// save dump.
-		if err := c.DatabaseService.InsertAuctions(a); err != nil {
+		if err := c.DatabaseService.Insert(warcraft.AuctionCollection, records); err != nil {
 			c.logger.WithFields(log.Fields{"error": err}).Warn(errSaveDump)
 			continue
 		}
+
+		c.AnalyzerService.AnalyzeDumps(c.Last, auctions)
 
 		// update dump timestamp.
 		c.Last = d.Timestamp

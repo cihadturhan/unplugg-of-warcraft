@@ -3,26 +3,19 @@ package database
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
-
-// AuctionCollection is the default name for the auction collection.
-const AuctionCollection = "auctions"
 
 // Service represents a service for interacting with the database.
 type Service struct {
 	client *Client
 }
 
-// InsertAuctions insets a slice of auctions into the database.
-func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
+// Insert inserts a slice of auctions into the database.
+func (s *Service) Insert(collectionName string, records []interface{}) error {
 	start := time.Now()
-
-	// convert auctions to interface.
-	as := make([]interface{}, 0)
-	for _, a := range auctions {
-		as = append(as, a)
-	}
+	as := records
 
 	// batch auctions.
 	for i := 0; i < len(as); i = i + 1000 {
@@ -30,11 +23,31 @@ func (s *Service) InsertAuctions(auctions []warcraft.Auction) error {
 		if end > len(as) {
 			end = len(as) - 1
 		}
-		if err := s.client.InsertAuctions(as[i:end]); err != nil {
+		if err := s.client.Insert(collectionName, as[i:end]); err != nil {
 			return nil
 		}
 	}
 
 	s.client.logger.WithFields(log.Fields{"count": len(as), "time": time.Since(start)}).Info("auctions inserted")
 	return nil
+}
+
+// Find returns all the auctions
+func (s *Service) Find(collectionName string, options bson.M) ([]warcraft.Auction, error) {
+	auctions, err := s.client.Find(collectionName, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return auctions, nil
+}
+
+// GetLastRecord returns the last record present in a collection
+func (s *Service) GetLastRecord(collectionName string) (warcraft.Auction, error) {
+	lastRecord, err := s.client.GetLastRecord(collectionName)
+	if err != nil {
+		return lastRecord, err
+	}
+
+	return lastRecord, nil
 }

@@ -1,5 +1,12 @@
 package warcraft
 
+import (
+	"gopkg.in/mgo.v2/bson"
+)
+
+const AuctionCollection = "auctions"
+const BuyoutCollection = "buyouts"
+
 // BlizzardService handles interaction with the blizzard API.
 type BlizzardService interface {
 	GetAPIDump(realm, locale, key string, last int64) (*APIDump, error)
@@ -8,12 +15,19 @@ type BlizzardService interface {
 
 // DatabaseService handles interaction with the database.
 type DatabaseService interface {
-	InsertAuctions(auctions []Auction) error
+	Insert(collectionName string, records []interface{}) error
+	Find(collectionName string, options bson.M) ([]Auction, error)
+	GetLastRecord(collectionName string) (Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.
 type FilesService interface {
 	LoadFilesIntoDatabase(path string) error
+}
+
+// AnalyzerService handles interaction with the dump analyzer
+type AnalyzerService interface {
+	AnalyzeDumps(lastTimestamp interface{}, newAuctions []Auction)
 }
 
 // Request stores the url and timestamp of the requested dump.
@@ -44,4 +58,13 @@ type Auction struct {
 	Quantity  int    `json:"quantity" bson:"quantity"`
 	Timeleft  string `json:"timeLeft" bson:"timeLeft"`
 	Timestamp int64  `json:"timestamp,omitempty" bson:"timestamp"`
+}
+
+// Buyout stores an auction that ended.
+type Buyout struct {
+	ID        int   `json:"auc" bson:"auc"`
+	Item      int   `json:"item" bson:"item"`
+	Buyout    int   `json:"buyout" bson:"buyout"`
+	Quantity  int   `json:"quantity" bson:"quantity"`
+	Timestamp int64 `json:"timestamp,omitempty" bson:"timestamp"`
 }

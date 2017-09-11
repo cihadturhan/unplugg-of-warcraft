@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/whitesmith/unplugg-of-warcraft"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -56,15 +57,12 @@ func (c *Client) Close() error {
 	return nil
 }
 
-// Service returns the service associated with the client.
-func (c *Client) Service() warcraft.DatabaseService { return &c.service }
-
 // InsertAuctions inserts a slice of auctions into the database.
-func (c *Client) InsertAuctions(auctions []interface{}) error {
+func (c *Client) Insert(collectionName string, auctions []interface{}) error {
 	// connect to collection.
 	session := c.Session.Copy()
 	defer session.Close()
-	col := session.DB("").C(AuctionCollection)
+	col := session.DB("warcraft").C(collectionName)
 
 	// insert auctions.
 	b := col.Bulk()
@@ -76,3 +74,41 @@ func (c *Client) InsertAuctions(auctions []interface{}) error {
 	}
 	return nil
 }
+
+// GetAuctions returns all the auctions
+func (c *Client) Find(collectionName string, options bson.M) ([]warcraft.Auction, error) {
+	// connect to collection.
+	session := c.Session.Copy()
+	defer session.Close()
+	col := session.DB("warcraft").C(collectionName)
+
+	// get auctions.
+	var auctions []warcraft.Auction
+
+	if err := col.Find(options).All(&auctions); err != nil {
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
+		return nil, err
+	}
+
+	return auctions, nil
+}
+
+// GetLastRecord returns the last record present in a collection
+func (c *Client) GetLastRecord(collectionName string) (warcraft.Auction, error) {
+	var lastRecord warcraft.Auction
+
+	// connect to collection.
+	session := c.Session.Copy()
+	defer session.Close()
+	col := session.DB("warcraft").C(collectionName)
+
+	if err := col.Find(nil).Sort("-timestamp").One(&lastRecord); err != nil {
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
+		return lastRecord, err
+	}
+
+	return lastRecord, nil
+}
+
+// Service returns the service associated with the client.
+func (c *Client) Service() warcraft.DatabaseService { return &c.service }
