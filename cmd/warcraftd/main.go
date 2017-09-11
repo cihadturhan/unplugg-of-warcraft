@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	log "github.com/Sirupsen/logrus"
+	"github.com/whitesmith/unplugg-of-warcraft/analyzer"
 	"github.com/whitesmith/unplugg-of-warcraft/blizzard"
 	"github.com/whitesmith/unplugg-of-warcraft/database"
 	"github.com/whitesmith/unplugg-of-warcraft/files"
@@ -41,18 +42,28 @@ func main() {
 	}
 	dbService := dbClient.Service()
 
+	// create analyzer client and service
+	analyzerClient := analyzer.NewClient()
+	analyzerClient.DatabaseService = dbService
+	analyzerService := analyzerClient.Service()
+
 	// create scraper client and service.
 	scraperClient := blizzard.NewClient(*timer, *realm, *locale, *apiKey)
 	scraperClient.DatabaseService = dbService
+	scraperClient.AnalyzerService = analyzerService
 	scraperService := scraperClient.Service()
 
 	// load files to the database.
 	if *loadDumpFiles {
+		// load all the auctions from the files
 		filesClient := files.NewClient()
 		filesClient.DatabaseService = dbService
 		filesClient.BlizzardService = scraperService
+		filesClient.AnalyzerService = analyzerService
 		filesService := filesClient.Service()
 		filesService.LoadFilesIntoDatabase("./")
+
+		return
 	} else {
 		if err := scraperClient.Open(); err != nil {
 			panic(err)

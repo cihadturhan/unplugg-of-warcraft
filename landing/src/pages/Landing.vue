@@ -9,11 +9,11 @@
 </template>
 
 <script>
-import Header from './components/Header'
-import Hero from './components/Hero'
-import Items from './components/Items'
-import Timeline from './components/Timeline'
-import Footer from './components/Footer'
+import Header from '../components/Header'
+import Hero from '../components/Hero'
+import Items from '../components/Items'
+import Timeline from '../components/Timeline'
+import Footer from '../components/Footer'
 
 export default {
   name: 'app',
@@ -28,5 +28,5 @@ export default {
 </script>
 
 <style>
-@import './style/index.css';
+@import '../style/index.css';
 </style>
