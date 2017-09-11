@@ -8,3 +8,9 @@ button, .btn{
   border-radius: 36px;
   user-select: none;
 }
+
+button.sm, .btn.sm{
+  padding: 5px 10px;
+  font-size: 24px;
+  border-width: 2px;
+}
