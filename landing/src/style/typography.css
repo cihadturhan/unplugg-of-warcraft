@@ -1,0 +1,64 @@
+@font-face {
+  font-family: 'Kingthings-Petrock';
+  src: url('../assets/fonts/kingthings-petrock.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Kingthings-Petrock';
+  src: url('../assets/fonts/kingthings-petrock-light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+
+@font-face {
+  font-family: 'Morhpeus';
+  src: url('../assets/fonts/morpheus.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+body{
+  font-family: 'Kingthings-Petrock', sans-serif;
+  color: var(--color-dark-blue-gray);
+}
+
+h1, h2, h3, h4, h5, h6{
+  font-family: Morhpeus, sans-serif;
+  line-height: 1.4;
+  margin-bottom: 1em;
+}
+
+h1{
+  font-size: 72px;
+}
+
+h2{
+  font-size: 48px;
+}
+
+p{
+  font-size: 22px;
+  margin-bottom: 1.6em;
+  line-height: 1.4em;
+}
+
+p.lead{
+  font-size: 36px;
+}
+
+
+.color-dark{
+  color: var(--color-dark-blue-gray);
+}
+
+.color-light{
+  color: var(--color-light);
+}
+
+.text-thin{
+  font-weight: 300;
+}
