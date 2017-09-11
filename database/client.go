@@ -93,5 +93,22 @@ func (c *Client) Find(collectionName string, options bson.M) ([]warcraft.Auction
 	return auctions, nil
 }
 
+// GetLastRecord returns the last record present in a collection
+func (c *Client) GetLastRecord(collectionName string) (warcraft.Auction, error) {
+	var lastRecord warcraft.Auction
+
+	// connect to collection.
+	session := c.Session.Copy()
+	defer session.Close()
+	col := session.DB("warcraft").C(collectionName)
+
+	if err := col.Find(nil).Sort("-timestamp").One(&lastRecord); err != nil {
+		c.logger.WithFields(log.Fields{"error": err}).Error(errDatabaseQuery)
+		return lastRecord, err
+	}
+
+	return lastRecord, nil
+}
+
 // Service returns the service associated with the client.
 func (c *Client) Service() warcraft.DatabaseService { return &c.service }

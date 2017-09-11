@@ -159,10 +159,10 @@ func (c *Client) GetDump(path string) (*warcraft.APIDump, error) {
 func (c *Client) handleRequests() {
 	// The database already has dumps
 	if c.Last == 0 {
-		auctions, err := c.DatabaseService.Find(warcraft.AuctionCollection, nil)
+		lastRecord, err := c.DatabaseService.GetLastRecord(warcraft.AuctionCollection)
 
-		if err == nil && auctions != nil {
-			c.Last = auctions[len(auctions)-1].Timestamp
+		if err == nil {
+			c.Last = lastRecord.Timestamp
 		}
 	}
 

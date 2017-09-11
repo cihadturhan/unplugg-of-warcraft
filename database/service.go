@@ -41,3 +41,13 @@ func (s *Service) Find(collectionName string, options bson.M) ([]warcraft.Auctio
 
 	return auctions, nil
 }
+
+// GetLastRecord returns the last record present in a collection
+func (s *Service) GetLastRecord(collectionName string) (warcraft.Auction, error) {
+	lastRecord, err := s.client.GetLastRecord(collectionName)
+	if err != nil {
+		return lastRecord, err
+	}
+
+	return lastRecord, nil
+}

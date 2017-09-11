@@ -17,6 +17,7 @@ type BlizzardService interface {
 type DatabaseService interface {
 	Insert(collectionName string, records []interface{}) error
 	Find(collectionName string, options bson.M) ([]Auction, error)
+	GetLastRecord(collectionName string) (Auction, error)
 }
 
 // FilesService handles interaction with the saved dump files.
