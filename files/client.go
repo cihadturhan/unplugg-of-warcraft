@@ -22,6 +22,9 @@ type Client struct {
 
 	// blizzard service.
 	BlizzardService warcraft.BlizzardService
+
+	// analyzer service.
+	AnalyzerService warcraft.AnalyzerService
 }
 
 // NewClient returns a new file loader client.
@@ -112,8 +115,14 @@ func (c *Client) LoadFileIntoDatabase(filename string) error {
 		return err
 	}
 
+	// convert auctions to interfaces
+	records := make([]interface{}, 0)
+	for _, auction := range auctions {
+		records = append(records, auction)
+	}
+
 	// save dump.
-	if err := c.DatabaseService.InsertAuctions(auctions); err != nil {
+	if err := c.DatabaseService.Insert(warcraft.AuctionCollection, records); err != nil {
 		c.logger.WithFields(log.Fields{"error": err}).Error(errFailedDatabaseSave)
 		return err
 	}
